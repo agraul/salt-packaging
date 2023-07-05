@@ -641,8 +641,19 @@ it enables the management of minions over a ssh connection.
 %package -n python3-salt-testsuite
 Summary:        Unit and integration tests for Salt
 Requires:       %{name} = %{version}-%{release}
-Requires:       python3-pytest
-Requires:       python3-pytest-salt-factories
+Requires:       python3-CherryPy
+Requires:       python3-Genshi
+Requires:       python3-Mako
+Requires:       python3-boto
+Requires:       python3-boto3
+Requires:       python3-mock
+Requires:       python3-pygit2
+Requires:       python3-pytest >= 7.0.1
+Requires:       python3-pytest-httpserver
+Requires:       python3-pytest-salt-factories >= 1.0.0~rc21
+Requires:       python3-pytest-subtests
+Requires:       python3-testinfra
+Requires:       python3-yamllintt-salt-factories
 Obsoletes:      %{name}-tests
 
 %description -n python3-salt-testsuite
