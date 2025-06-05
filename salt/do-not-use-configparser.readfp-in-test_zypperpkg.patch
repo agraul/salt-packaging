@@ -1,0 +1,25 @@
+From 27619db959b21c4847eb61d0eff02a1ad1a764d0 Mon Sep 17 00:00:00 2001
+From: Alexander Graul <agraul@suse.com>
+Date: Tue, 10 Jun 2025 14:27:42 +0200
+Subject: [PATCH] Do not use ConfigParser.readfp in test_zypperpkg
+
+---
+ tests/unit/modules/test_zypperpkg.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tests/unit/modules/test_zypperpkg.py b/tests/unit/modules/test_zypperpkg.py
+index bd67b16745c..3c3c449d7bc 100644
+--- a/tests/unit/modules/test_zypperpkg.py
++++ b/tests/unit/modules/test_zypperpkg.py
+@@ -1976,7 +1976,7 @@ Repository 'DUMMY' not found by its alias, number, or URI.
+         """
+         repos_cfg = configparser.ConfigParser()
+         for cfg in ["zypper-repo-1.cfg", "zypper-repo-2.cfg"]:
+-            repos_cfg.readfp(io.StringIO(get_test_data(cfg)))
++            repos_cfg.read_file(io.StringIO(get_test_data(cfg)))
+ 
+         for alias in repos_cfg.sections():
+             r_info = zypper._get_repo_info(alias, repos_cfg=repos_cfg)
+-- 
+2.49.0
+

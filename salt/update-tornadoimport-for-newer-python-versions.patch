@@ -1,0 +1,77 @@
+From 9a2922be39d5d1a37aac4ca0615a7677a09b00c0 Mon Sep 17 00:00:00 2001
+From: Alexander Graul <agraul@suse.com>
+Date: Wed, 11 Jun 2025 14:29:00 +0200
+Subject: [PATCH] Update TornadoImport for newer Python versions
+
+Starting with Python 3.12, the import machinery does not use
+find_module() anymore [0]. To intercept the import, we only need to
+override find_spec() method in a finder.
+
+--
+[0]: https://github.com/python/cpython/issues/98040
+---
+ salt/__init__.py | 35 ++++++++++++++---------------------
+ 1 file changed, 14 insertions(+), 21 deletions(-)
+
+diff --git a/salt/__init__.py b/salt/__init__.py
+index b5fe3677c22..215a6874280 100644
+--- a/salt/__init__.py
++++ b/salt/__init__.py
+@@ -3,6 +3,7 @@ Salt package
+ """
+ 
+ import importlib
++import importlib.util
+ import sys
+ import warnings
+ 
+@@ -16,33 +17,25 @@ USE_VENDORED_TORNADO = True
+ 
+ 
+ class TornadoImporter:
+-    def find_module(self, module_name, package_path=None):
+-        if USE_VENDORED_TORNADO:
+-            if module_name.startswith("tornado"):
+-                return self
+-        else:
+-            if module_name.startswith("salt.ext.tornado"):
+-                return self
+-        return None
+-
+-    def load_module(self, name):
+-        if USE_VENDORED_TORNADO:
+-            mod = importlib.import_module("salt.ext.{}".format(name))
+-        else:
+-            # Remove 'salt.ext.' from the module
+-            mod = importlib.import_module(name[9:])
+-        sys.modules[name] = mod
+-        return mod
++    """Implementation of importlib.abc.MetaPathFinder that intercepts tornado imports.
+ 
+-    def create_module(self, spec):
+-        return self.load_module(spec.name)
++    Normally, a Finder is only responsible for finding a source. However, we not
++    only need to redirect the import, we also need to add it to sys.modules.
++    That's outside of a finder's scope, but the it's easiest to do it in one place.
++    """
+ 
+-    def exec_module(self, module):
++    def find_spec(self, fullname, path=None, target=None):
++        if USE_VENDORED_TORNADO and fullname.startswith("tornado"):
++            vendored_name = fullname.replace("tornado", "salt.ext.tornado", 1)
++            spec = importlib.util.find_spec(vendored_name)
++            if spec is not None:
++                sys.modules[fullname] = importlib.import_module(vendored_name)
++                return spec
+         return None
+ 
+ 
+ # Try our importer first
+-sys.meta_path = [TornadoImporter()] + sys.meta_path
++sys.meta_path.insert(0, TornadoImporter())
+ 
+ 
+ # All salt related deprecation warnings should be shown once each!
+-- 
+2.49.0
+

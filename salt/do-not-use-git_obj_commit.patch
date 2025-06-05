@@ -1,0 +1,27 @@
+From 0c3ee77e67351076ca9c1e144202622588ac5c5e Mon Sep 17 00:00:00 2001
+From: Alexander Graul <agraul@suse.com>
+Date: Tue, 10 Jun 2025 16:04:43 +0200
+Subject: [PATCH] Do not use GIT_OBJ_COMMIT
+
+pygit2 does not have this attribute anymore. It still exists with the
+longer name GIT_OBJECT_COMMIT
+---
+ tests/pytests/unit/utils/test_gitfs.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tests/pytests/unit/utils/test_gitfs.py b/tests/pytests/unit/utils/test_gitfs.py
+index 3c4a85a856a..4705c79a9e4 100644
+--- a/tests/pytests/unit/utils/test_gitfs.py
++++ b/tests/pytests/unit/utils/test_gitfs.py
+@@ -149,7 +149,7 @@ def _prepare_remote_repository_pygit2(tmp_path):
+         [repository.head.target],
+     )
+     repository.create_tag(
+-        "annotated_tag", commit, pygit2.GIT_OBJ_COMMIT, signature, "some message"
++        "annotated_tag", commit, pygit2.GIT_OBJECT_COMMIT, signature, "some message"
+     )
+     return remote
+ 
+-- 
+2.49.0
+

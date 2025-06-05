@@ -1,0 +1,41 @@
+From f1597f1aea5e3fea54267584cbd903e01be42d4b Mon Sep 17 00:00:00 2001
+From: Alexander Graul <agraul@suse.com>
+Date: Thu, 5 Jun 2025 16:59:36 +0200
+Subject: [PATCH] Match substring in test_openscap
+
+ArgumentParser changed output with 3.12 (single-quotes around 'eval'
+were removed). Since it's brittle to fully match such strings, we
+instead check a substring only.
+---
+ tests/unit/modules/test_openscap.py | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
+
+diff --git a/tests/unit/modules/test_openscap.py b/tests/unit/modules/test_openscap.py
+index c20220ea977..e2158cb109c 100644
+--- a/tests/unit/modules/test_openscap.py
++++ b/tests/unit/modules/test_openscap.py
+@@ -201,17 +201,11 @@ class OpenscapTestCase(TestCase):
+ 
+     def test_openscap_xccdf_eval_fail_not_implemented_action(self):
+         response = openscap.xccdf("info {}".format(self.policy_file))
+-        mock_err = "argument action: invalid choice: 'info' (choose from 'eval')"
+ 
+-        self.assertEqual(
+-            response,
+-            {
+-                "upload_dir": None,
+-                "error": mock_err,
+-                "success": False,
+-                "returncode": None,
+-            },
+-        )
++        self.assertIsNone(response["upload_dir"])
++        self.assertIsNone(response["returncode"])
++        self.assertFalse(response["success"])
++        self.assertIn("invalid choice: 'info'", response["error"])
+ 
+     def test_new_openscap_xccdf_eval_success(self):
+         with patch(
+-- 
+2.49.0
+

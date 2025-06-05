@@ -580,6 +580,18 @@ Patch180:       modify-readme-for-opensuse-728.patch
 # PATCH-FIX_OPENSUSE: https://github.com/openSUSE/salt/pull/729
 Patch181:       even-more-reliable-pillar-timeout-test.patch
 
+
+
+# PATCH-FIX_UPSTREAM: https://github.com/saltstack/salt/pull/64458
+Patch1078:       stop-using-the-deprecated-imp-module.patch
+Patch1079:       do-not-use-imp-library-in-test_zypp_plugins.patch
+Patch1080:       match-substring-in-test_openscap.patch
+Patch1081:       do-not-use-configparser.readfp-in-test_zypperpkg.patch
+Patch1082:       do-not-use-assertdictcontainssubset-in-tests.patch
+Patch1083:       do-not-use-configparser.readfp-in-nilrt_ip-module.patch
+Patch1084:       do-not-use-git_obj_commit.patch
+Patch1085:       update-tornadoimport-for-newer-python-versions.patch
+
 ### IMPORTANT: The line below is used as a snippet marker. Do not touch it.
 ### SALT PATCHES LIST END
 
