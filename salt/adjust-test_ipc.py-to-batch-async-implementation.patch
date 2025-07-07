@@ -1,17 +1,26 @@
-From d5f86b08f2cef3dbbe92e83928b07197080220e9 Mon Sep 17 00:00:00 2001
+From b8f0ed31ecd35ed08fe32dab40497b1d3a2d22d6 Mon Sep 17 00:00:00 2001
 From: Alexander Graul <agraul@suse.com>
 Date: Mon, 7 Jul 2025 13:10:40 +0200
 Subject: [PATCH] Adjust test_ipc.py to batch async implementation
 
 ---
- tests/unit/transport/test_ipc.py | 3 +++
- 1 file changed, 3 insertions(+)
+ tests/unit/transport/test_ipc.py | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
 diff --git a/tests/unit/transport/test_ipc.py b/tests/unit/transport/test_ipc.py
-index 72c32a2382c..8a27e2df477 100644
+index 4a159ea8efb..0c0ce56ed51 100644
 --- a/tests/unit/transport/test_ipc.py
 +++ b/tests/unit/transport/test_ipc.py
-@@ -102,6 +102,9 @@ class IPCMessagePubSubCase(salt.ext.tornado.testing.AsyncTestCase):
+@@ -1,6 +1,7 @@
+ """
+-    :codeauthor: Mike Place <mp@saltstack.com>
++:codeauthor: Mike Place <mp@saltstack.com>
+ """
++
+ import errno
+ import logging
+ import os
+@@ -102,9 +103,12 @@ class IPCMessagePubSubCase(salt.ext.tornado.testing.AsyncTestCase):
                  evt.set()
                  self.stop()
  
@@ -19,8 +28,25 @@ index 72c32a2382c..8a27e2df477 100644
 +        client2.callbacks.add(handler)
 +
          # Now let both waiting data at once
-         client1.read_async()
-         client2.read_async()
+-        client1.read_async(handler)
+-        client2.read_async(handler)
++        client1.read_async()
++        client2.read_async()
+         self.pub_channel.publish("TEST")
+         self.wait()
+         self.assertEqual(len(call_cnt), 2)
+@@ -145,8 +149,10 @@ class IPCMessagePubSubCase(salt.ext.tornado.testing.AsyncTestCase):
+         def handler(raw):
+             pass
+ 
++        client1.callbacks.add(handler)
++
+         try:
+-            ret1 = yield client1.read_async(handler)
++            ret1 = yield client1.read_async()
+             self.wait()
+         except StreamClosedError as ex:
+             assert False, "StreamClosedError was raised inside the Future"
 -- 
 2.50.0
 
