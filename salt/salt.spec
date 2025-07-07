@@ -583,14 +583,15 @@ Patch181:       even-more-reliable-pillar-timeout-test.patch
 
 
 # PATCH-FIX_UPSTREAM: https://github.com/saltstack/salt/pull/64458
-Patch1078:       stop-using-the-deprecated-imp-module.patch
-Patch1079:       do-not-use-imp-library-in-test_zypp_plugins.patch
-Patch1080:       match-substring-in-test_openscap.patch
-Patch1081:       do-not-use-configparser.readfp-in-test_zypperpkg.patch
-Patch1082:       do-not-use-assertdictcontainssubset-in-tests.patch
-Patch1083:       do-not-use-configparser.readfp-in-nilrt_ip-module.patch
-Patch1084:       do-not-use-git_obj_commit.patch
-Patch1085:       update-tornadoimport-for-newer-python-versions.patch
+Patch1077:       stop-using-the-deprecated-imp-module.patch
+Patch1078:       do-not-use-imp-library-in-test_zypp_plugins.patch
+Patch1079:       match-substring-in-test_openscap.patch
+Patch1080:       do-not-use-configparser.readfp-in-test_zypperpkg.patch
+Patch1081:       do-not-use-assertdictcontainssubset-in-tests.patch
+Patch1082:       do-not-use-configparser.readfp-in-nilrt_ip-module.patch
+Patch1083:       do-not-use-git_obj_commit.patch
+Patch1084:       update-tornadoimport-for-newer-python-versions.patch
+Patch1085:       adjust-test_ipc.py-to-batch-async-implementation.patch
 
 ### IMPORTANT: The line below is used as a snippet marker. Do not touch it.
 ### SALT PATCHES LIST END

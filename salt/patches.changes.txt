@@ -1,3 +1,0 @@
-- Added:
-  * adjust-test_ipc.py-to-batch-async-implementation.patch
-
