@@ -1,0 +1,26 @@
+From d5f86b08f2cef3dbbe92e83928b07197080220e9 Mon Sep 17 00:00:00 2001
+From: Alexander Graul <agraul@suse.com>
+Date: Mon, 7 Jul 2025 13:10:40 +0200
+Subject: [PATCH] Adjust test_ipc.py to batch async implementation
+
+---
+ tests/unit/transport/test_ipc.py | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/tests/unit/transport/test_ipc.py b/tests/unit/transport/test_ipc.py
+index 72c32a2382c..8a27e2df477 100644
+--- a/tests/unit/transport/test_ipc.py
++++ b/tests/unit/transport/test_ipc.py
+@@ -102,6 +102,9 @@ class IPCMessagePubSubCase(salt.ext.tornado.testing.AsyncTestCase):
+                 evt.set()
+                 self.stop()
+ 
++        client1.callbacks.add(handler)
++        client2.callbacks.add(handler)
++
+         # Now let both waiting data at once
+         client1.read_async()
+         client2.read_async()
+-- 
+2.50.0
+
