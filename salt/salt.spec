@@ -597,6 +597,7 @@ Patch1085:       adjust-test_ipc.py-to-batch-async-implementation.patch
 # PATCH-FIX_UPSTREAM: https://github.com/saltstack/salt/commit/0c2c53522619ebeede3c0204ab7f43377136d09a
 Patch1086:       switch-to-external-tornado.patch
 Patch1087:       migrate-batch_async-to-upstream-tornado.patch
+Patch1088:       mutating-locals-is-unsupported-in-py-3.13.patch
 
 ### IMPORTANT: The line below is used as a snippet marker. Do not touch it.
 ### SALT PATCHES LIST END
