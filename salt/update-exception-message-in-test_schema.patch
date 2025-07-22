@@ -1,0 +1,28 @@
+From 4fa9322c0c8a898148f98d67bda2c3fdb78fbf19 Mon Sep 17 00:00:00 2001
+From: Marek Czernek <marek.czernek@suse.com>
+Date: Thu, 17 Jul 2025 16:11:50 +0200
+Subject: [PATCH] Update exception message in test_schema
+
+---
+ tests/unit/utils/test_schema.py | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/tests/unit/utils/test_schema.py b/tests/unit/utils/test_schema.py
+index 24c24b2405..c02945bdcf 100644
+--- a/tests/unit/utils/test_schema.py
++++ b/tests/unit/utils/test_schema.py
+@@ -1548,7 +1548,10 @@ class ConfigTestCase(TestCase):
+                 TestConf.serialize(),
+                 format_checker=jsonschema.FormatChecker(),
+             )
+-        self.assertIn("is too short", excinfo.exception.message)
++        self.assertTrue(
++            ("is too short" in excinfo.exception.message)
++            or ("should be non-empty" in excinfo.exception.message)
++        )
+ 
+         class TestConf(schema.Schema):
+             item = schema.ArrayItem(
+-- 
+2.50.1
+
