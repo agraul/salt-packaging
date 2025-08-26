@@ -1,0 +1,49 @@
+From 825e89f29200d3467d3f52e6be86c5ed36b176b3 Mon Sep 17 00:00:00 2001
+From: Marek Czernek <marek.czernek@suse.com>
+Date: Thu, 24 Jul 2025 16:17:04 +0200
+Subject: [PATCH] Fix test_minion intermittent fail
+
+---
+ tests/pytests/unit/test_minion.py | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/tests/pytests/unit/test_minion.py b/tests/pytests/unit/test_minion.py
+index 7c5c14c018..ac926d405a 100644
+--- a/tests/pytests/unit/test_minion.py
++++ b/tests/pytests/unit/test_minion.py
+@@ -1,3 +1,4 @@
++import asyncio
+ import copy
+ import logging
+ import os
+@@ -21,6 +22,27 @@ from tests.support.mock import MagicMock, patch
+ log = logging.getLogger(__name__)
+ 
+ 
++@pytest.fixture(autouse=True)
++def new_tornado_ioloop():
++    """
++    From version 6, tornado is a wrapper around asyncio event loop.
++    This means that if previous tests close down the event loop,
++    `tornado.ioloop.IOLoop.clear_current()` might attempt to use
++    already closed event loop.
++
++    This fixture ensures that each test uses a running event loop.
++
++    NOTE: Do not tear down the loop after the tests, otherwise
++    you have to instantiate it in later tests that depend on it.
++    """
++    if tornado.version_info < (6,):
++        yield
++    tornado.ioloop.IOLoop.clear_current()
++    new_loop = asyncio.new_event_loop()
++    asyncio.set_event_loop(new_loop)
++    yield
++
++
+ def test_minion_load_grains_false(minion_opts):
+     """
+     Minion does not generate grains when load_grains is False
+-- 
+2.50.1
+
