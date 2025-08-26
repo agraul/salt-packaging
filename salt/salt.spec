@@ -599,24 +599,24 @@ Patch1086:       switch-to-external-tornado.patch
 Patch1087:       migrate-batch_async-to-upstream-tornado.patch
 Patch1088:       mutating-locals-is-unsupported-in-py-3.13.patch
 Patch1089:       update-exception-message-in-test_schema.patch
-Patch190:       fix-test-manage-error-test.patch
-Patch191:       fix-test_ipc.patch
-Patch192:       fix-test_minion-intermittent-fail.patch
-Patch193:       adjust-jsonschema-test-to-newer-versions.patch
-Patch194:       modules-tls.py-use-cryptography-for-create_pkcs12.patch
-Patch195:       modules-x509-use-cryptography-for-create_crl.patch
-Patch196:       use-deprecated-stackcontext-from-salt.ext.tornado.st.patch
-Patch197:       remove-use-of-spwd-removed-module-in-py3.13.patch
-Patch198:       pathlib.path.__enter__-usage-is-deprecated-and-not-r.patch
-Patch199:       fix-error-if-future-is-already-done.patch
-Patch200:       fix-issues-around-closing-ioloop.patch
-Patch201:       fixup-bunch-of-fixes.patch
-Patch202:       remove-unexpected-callback-keyword.patch
-Patch203:       skip-incompatible-pip-tests-with-python-3.12.patch
-Patch204:       fixme-use-httpserver-from-vendored-tornado.patch
-Patch205:       add-support-for-extra_args-on-pip-removal.patch
-Patch206:       virtual_env-add-support-for-python-3.12.patch
-Patch207:       fixme-skip-stuck-test.patch
+Patch1090:       fix-test-manage-error-test.patch
+Patch1091:       fix-test_ipc.patch
+Patch1092:       fix-test_minion-intermittent-fail.patch
+Patch1093:       adjust-jsonschema-test-to-newer-versions.patch
+Patch1094:       modules-tls.py-use-cryptography-for-create_pkcs12.patch
+Patch1095:       modules-x509-use-cryptography-for-create_crl.patch
+Patch1096:       use-deprecated-stackcontext-from-salt.ext.tornado.st.patch
+Patch1097:       remove-use-of-spwd-removed-module-in-py3.13.patch
+Patch1098:       pathlib.path.__enter__-usage-is-deprecated-and-not-r.patch
+Patch1099:       fix-error-if-future-is-already-done.patch
+Patch1100:       fix-issues-around-closing-ioloop.patch
+Patch1101:       fixup-bunch-of-fixes.patch
+Patch1102:       remove-unexpected-callback-keyword.patch
+Patch1103:       skip-incompatible-pip-tests-with-python-3.12.patch
+Patch1104:       fixme-use-httpserver-from-vendored-tornado.patch
+Patch1105:       add-support-for-extra_args-on-pip-removal.patch
+Patch1106:       virtual_env-add-support-for-python-3.12.patch
+Patch1107:       fixme-skip-stuck-test.patch
 
 ### IMPORTANT: The line below is used as a snippet marker. Do not touch it.
 ### SALT PATCHES LIST END
