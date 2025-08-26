@@ -600,6 +600,7 @@ Patch1087:       migrate-batch_async-to-upstream-tornado.patch
 Patch1088:       mutating-locals-is-unsupported-in-py-3.13.patch
 Patch1089:       update-exception-message-in-test_schema.patch
 Patch190:       fix-test-manage-error-test.patch
+Patch191:       fix-test_ipc.patch
 
 ### IMPORTANT: The line below is used as a snippet marker. Do not touch it.
 ### SALT PATCHES LIST END
