@@ -1,0 +1,266 @@
+From 0cfd7b559515eb8d8425ab72f4247bf714604d01 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pablo=20Su=C3=A1rez=20Hern=C3=A1ndez?=
+ <psuarezhernandez@suse.com>
+Date: Wed, 13 Aug 2025 15:44:52 +0100
+Subject: [PATCH] FIXME: use httpserver from vendored tornado
+
+---
+ salt/utils/http.py                            | 22 +++++++++----------
+ .../test_external_auth_syntax.py              |  1 -
+ .../netapi/rest_tornado/conftest.py           |  2 +-
+ .../rest_tornado/test_external_auth_syntax.py |  1 -
+ .../rest_tornado/test_webhooks_handler.py     |  1 +
+ .../netapi/rest_cherrypy/conftest.py          |  2 +-
+ .../netapi/rest_tornado/conftest.py           |  2 +-
+ .../unit/modules/file/test_file_module.py     |  1 -
+ tests/support/netapi.py                       |  9 --------
+ tests/unit/utils/test_http.py                 |  6 ++---
+ 10 files changed, 18 insertions(+), 29 deletions(-)
+
+diff --git a/salt/utils/http.py b/salt/utils/http.py
+index 9d0669a85b..562ffa7d6c 100644
+--- a/salt/utils/http.py
++++ b/salt/utils/http.py
+@@ -23,8 +23,8 @@ import xml.etree.ElementTree as ET
+ import zlib
+ 
+ import salt.config
+-import tornado.httputil
+-import tornado.simple_httpclient
++import salt.ext.tornado.httputil
++import salt.ext.tornado.simple_httpclient
+ import salt.loader
+ import salt.syspaths
+ import salt.utils.args
+@@ -38,7 +38,7 @@ import salt.utils.stringutils
+ import salt.utils.xmlutil as xml
+ import salt.utils.yaml
+ import salt.version
+-from tornado.httpclient import HTTPClient
++from salt.ext.tornado.httpclient import HTTPClient
+ from salt.template import compile_template
+ from salt.utils.decorators.jinja import jinja_filter
+ 
+@@ -63,7 +63,7 @@ except ImportError:
+ 
+ 
+ try:
+-    import tornado.curl_httpclient
++    import salt.ext.tornado.curl_httpclient
+ 
+     HAS_CURL_HTTPCLIENT = True
+ except ImportError:
+@@ -213,7 +213,7 @@ def query(
+ 
+     # Some libraries don't support separation of url and GET parameters
+     # Don't need a try/except block, since Salt depends on tornado
+-    url_full = tornado.httputil.url_concat(url, params) if params else url
++    url_full = salt.ext.tornado.httputil.url_concat(url, params) if params else url
+ 
+     if ca_bundle is None:
+         ca_bundle = get_ca_bundle(opts)
+@@ -564,16 +564,16 @@ def query(
+                 log.error(ret["error"])
+                 return ret
+ 
+-            tornado.httpclient.AsyncHTTPClient.configure(
+-                "tornado.curl_httpclient.CurlAsyncHTTPClient"
++            salt.ext.tornado.httpclient.AsyncHTTPClient.configure(
++                "salt.ext.tornado.curl_httpclient.CurlAsyncHTTPClient"
+             )
+             client_argspec = salt.utils.args.get_function_argspec(
+-                tornado.curl_httpclient.CurlAsyncHTTPClient.initialize
++                salt.ext.tornado.curl_httpclient.CurlAsyncHTTPClient.initialize
+             )
+         else:
+-            tornado.httpclient.AsyncHTTPClient.configure(None)
++            salt.ext.tornado.httpclient.AsyncHTTPClient.configure(None)
+             client_argspec = salt.utils.args.get_function_argspec(
+-                tornado.simple_httpclient.SimpleAsyncHTTPClient.initialize
++                salt.ext.tornado.simple_httpclient.SimpleAsyncHTTPClient.initialize
+             )
+ 
+         supports_max_body_size = "max_body_size" in client_argspec.args
+@@ -612,7 +612,7 @@ def query(
+                 else HTTPClient()
+             )
+             result = download_client.fetch(url_full, **req_kwargs)
+-        except tornado.httpclient.HTTPError as exc:
++        except salt.ext.tornado.httpclient.HTTPError as exc:
+             ret["status"] = exc.code
+             ret["error"] = str(exc)
+             return ret
+diff --git a/tests/pytests/functional/netapi/rest_cherrypy/test_external_auth_syntax.py b/tests/pytests/functional/netapi/rest_cherrypy/test_external_auth_syntax.py
+index 6a85f33900..0be1cacb67 100644
+--- a/tests/pytests/functional/netapi/rest_cherrypy/test_external_auth_syntax.py
++++ b/tests/pytests/functional/netapi/rest_cherrypy/test_external_auth_syntax.py
+@@ -280,7 +280,6 @@ def client_config(client_config, external_auth):
+ @pytest.fixture
+ def http_server(io_loop, app, netapi_port, content_type_map):
+     with netapi.TestsTornadoHttpServer(
+-        io_loop=io_loop,
+         app=app,
+         port=netapi_port,
+         client_headers={"Content-Type": content_type_map["form"]},
+diff --git a/tests/pytests/functional/netapi/rest_tornado/conftest.py b/tests/pytests/functional/netapi/rest_tornado/conftest.py
+index c5ade79992..d578fd9f8a 100644
+--- a/tests/pytests/functional/netapi/rest_tornado/conftest.py
++++ b/tests/pytests/functional/netapi/rest_tornado/conftest.py
+@@ -23,7 +23,7 @@ def app(app_urls, load_auth, client_config, minion_config):
+ @pytest.fixture
+ def http_server(io_loop, app, netapi_port):
+     with netapi.TestsTornadoHttpServer(
+-        io_loop=io_loop, app=app, port=netapi_port
++        app=app, port=netapi_port
+     ) as server:
+         yield server
+ 
+diff --git a/tests/pytests/functional/netapi/rest_tornado/test_external_auth_syntax.py b/tests/pytests/functional/netapi/rest_tornado/test_external_auth_syntax.py
+index 4bdd3279ed..51093323ad 100644
+--- a/tests/pytests/functional/netapi/rest_tornado/test_external_auth_syntax.py
++++ b/tests/pytests/functional/netapi/rest_tornado/test_external_auth_syntax.py
+@@ -281,7 +281,6 @@ def client_config(client_config, external_auth):
+ @pytest.fixture
+ def http_server(io_loop, app, netapi_port, content_type_map):
+     with netapi.TestsTornadoHttpServer(
+-        io_loop=io_loop,
+         app=app,
+         port=netapi_port,
+         client_headers={"Content-Type": content_type_map["form"]},
+diff --git a/tests/pytests/functional/netapi/rest_tornado/test_webhooks_handler.py b/tests/pytests/functional/netapi/rest_tornado/test_webhooks_handler.py
+index 3b199b6e20..7be7d815f5 100644
+--- a/tests/pytests/functional/netapi/rest_tornado/test_webhooks_handler.py
++++ b/tests/pytests/functional/netapi/rest_tornado/test_webhooks_handler.py
+@@ -36,6 +36,7 @@ async def test_hook_can_handle_get_parameters(http_client, app, content_type_map
+                         "Content-Type": "application/json",
+                         "Host": host,
+                         "Accept-Encoding": "gzip",
++                        "User-Agent": "Tornado/6.5",
+                     },
+                     "post": {},
+                     "get": {"param": ["1", "2"]},
+diff --git a/tests/pytests/integration/netapi/rest_cherrypy/conftest.py b/tests/pytests/integration/netapi/rest_cherrypy/conftest.py
+index 213b0390ae..9f12ab4e7b 100644
+--- a/tests/pytests/integration/netapi/rest_cherrypy/conftest.py
++++ b/tests/pytests/integration/netapi/rest_cherrypy/conftest.py
+@@ -37,7 +37,7 @@ def client_headers(auth_token, content_type_map):
+ @pytest.fixture
+ def http_server(io_loop, app, netapi_port, client_headers):
+     with netapi.TestsTornadoHttpServer(
+-        io_loop=io_loop, app=app, port=netapi_port, client_headers=client_headers
++        app=app, port=netapi_port, client_headers=client_headers
+     ) as server:
+         yield server
+ 
+diff --git a/tests/pytests/integration/netapi/rest_tornado/conftest.py b/tests/pytests/integration/netapi/rest_tornado/conftest.py
+index f8923f01ef..e1d6793681 100644
+--- a/tests/pytests/integration/netapi/rest_tornado/conftest.py
++++ b/tests/pytests/integration/netapi/rest_tornado/conftest.py
+@@ -34,7 +34,7 @@ def client_headers(auth_token, content_type_map):
+ @pytest.fixture
+ def http_server(io_loop, app, client_headers, netapi_port):
+     with netapi.TestsTornadoHttpServer(
+-        io_loop=io_loop, app=app, port=netapi_port, client_headers=client_headers
++       app=app, port=netapi_port, client_headers=client_headers
+     ) as server:
+         yield server
+ 
+diff --git a/tests/pytests/unit/modules/file/test_file_module.py b/tests/pytests/unit/modules/file/test_file_module.py
+index 655f462313..5d7de2a0a8 100644
+--- a/tests/pytests/unit/modules/file/test_file_module.py
++++ b/tests/pytests/unit/modules/file/test_file_module.py
+@@ -89,7 +89,6 @@ def test_check_file_meta_binary_contents():
+     UnicodeDecodeError when used with binary contents (issue #57184).
+     """
+     contents = b"\xf4\x91"
+-    import pdb; pdb.set_trace()
+     filemod.check_file_meta(
+         "test",
+         "test",
+diff --git a/tests/support/netapi.py b/tests/support/netapi.py
+index 7989ccd407..0160e06081 100644
+--- a/tests/support/netapi.py
++++ b/tests/support/netapi.py
+@@ -18,13 +18,11 @@ log = logging.getLogger(__name__)
+ @attr.s
+ class TestsHttpClient:
+     address = attr.ib()
+-#    io_loop = attr.ib(repr=False)
+     headers = attr.ib(default=None)
+     client = attr.ib(init=False, repr=False)
+ 
+     @client.default
+     def _client_default(self):
+-#        return AsyncHTTPClient(self.io_loop)
+         return AsyncHTTPClient()
+ 
+     async def fetch(self, path, **kwargs):
+@@ -53,7 +51,6 @@ class TestsHttpClient:
+ 
+ @attr.s
+ class TestsTornadoHttpServer:
+-    io_loop = attr.ib(repr=False)
+     app = attr.ib()
+     port = attr.ib(repr=False)
+     protocol = attr.ib(default="http", repr=False)
+@@ -81,7 +78,6 @@ class TestsTornadoHttpServer:
+     @server.default
+     def _server_default(self):
+         server = HTTPServer(self.app, **self.http_server_options)
+-#        server = HTTPServer(self.app, io_loop=self.io_loop, **self.http_server_options)
+         server.add_sockets([self.sock])
+         return server
+ 
+@@ -89,7 +85,6 @@ class TestsTornadoHttpServer:
+     def _client_default(self):
+         return TestsHttpClient(
+             address=self.address, headers=self.client_headers
+-#            address=self.address, io_loop=self.io_loop, headers=self.client_headers
+         )
+ 
+     def __enter__(self):
+@@ -97,10 +92,6 @@ class TestsTornadoHttpServer:
+ 
+     def __exit__(self, *_):
+         self.server.stop()
+-#        try:
+-#            self.io_loop.run_sync(self.server.close_all_connections, timeout=10)
+-#        except IOLoopTimeoutError:
+-#            pass
+         self.client.client.close()
+ 
+ 
+diff --git a/tests/unit/utils/test_http.py b/tests/unit/utils/test_http.py
+index a8f751624e..2d42fcc277 100644
+--- a/tests/unit/utils/test_http.py
++++ b/tests/unit/utils/test_http.py
+@@ -15,7 +15,7 @@ from tests.support.runtests import RUNTIME_VARS
+ from tests.support.unit import TestCase
+ 
+ try:
+-    import tornado.curl_httpclient  # pylint: disable=unused-import
++    import salt.ext.tornado.curl_httpclient  # pylint: disable=unused-import
+ 
+     HAS_CURL = True
+ except ImportError:
+@@ -207,7 +207,7 @@ class HTTPPostTestCase(TestCase):
+ 
+     @pytest.mark.skipif(
+         HAS_CURL is False,
+-        reason="Missing prerequisites for tornado.curl_httpclient library",
++        reason="Missing prerequisites for salt.ext.tornado.curl_httpclient library",
+     )
+     def test_query_proxy(self):
+         """
+@@ -225,7 +225,7 @@ class HTTPPostTestCase(TestCase):
+ 
+         mock_curl = MagicMock()
+ 
+-        with patch("tornado.httpclient.HTTPClient.fetch", mock_curl):
++        with patch("salt.ext.tornado.httpclient.HTTPClient.fetch", mock_curl):
+             ret = http.query(
+                 self.post_web_root,
+                 method="POST",
+-- 
+2.50.1
+
