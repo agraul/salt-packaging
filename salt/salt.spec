@@ -603,6 +603,7 @@ Patch190:       fix-test-manage-error-test.patch
 Patch191:       fix-test_ipc.patch
 Patch192:       fix-test_minion-intermittent-fail.patch
 Patch193:       adjust-jsonschema-test-to-newer-versions.patch
+Patch194:       modules-tls.py-use-cryptography-for-create_pkcs12.patch
 
 ### IMPORTANT: The line below is used as a snippet marker. Do not touch it.
 ### SALT PATCHES LIST END
