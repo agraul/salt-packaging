@@ -1,0 +1,38 @@
+From e870d5573457539d3ace7ad6a368160d8bcca073 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pablo=20Su=C3=A1rez=20Hern=C3=A1ndez?=
+ <psuarezhernandez@suse.com>
+Date: Wed, 13 Aug 2025 15:43:13 +0100
+Subject: [PATCH] Skip incompatible pip tests with Python 3.12+
+
+---
+ tests/pytests/functional/modules/test_pip.py | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/tests/pytests/functional/modules/test_pip.py b/tests/pytests/functional/modules/test_pip.py
+index 1f0104e3e6..4b1ca75afa 100644
+--- a/tests/pytests/functional/modules/test_pip.py
++++ b/tests/pytests/functional/modules/test_pip.py
+@@ -15,8 +15,18 @@ from tests.support.helpers import VirtualEnv
+                 reason="'pip==9.0.3' is not available on Py >= 3.10",
+             ),
+         ),
+-        "pip<20.0",
+-        "pip<21.0",
++        pytest.param(
++            "pip<20.0",
++            marks=pytest.mark.skipif(
++                sys.version_info >= (3, 12), reason="incompatible version: distutils removed on Python 3.12",
++            ),
++        ),
++        pytest.param(
++            "pip<21.0",
++            marks=pytest.mark.skipif(
++                sys.version_info >= (3, 12), reason="incompatible version: distutils removed on Python 3.12",
++            ),
++        ),
+         "pip>=21.0",
+     ),
+ )
+-- 
+2.50.1
+

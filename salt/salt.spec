@@ -612,6 +612,7 @@ Patch199:       fix-error-if-future-is-already-done.patch
 Patch200:       fix-issues-around-closing-ioloop.patch
 Patch201:       fixup-bunch-of-fixes.patch
 Patch202:       remove-unexpected-callback-keyword.patch
+Patch203:       skip-incompatible-pip-tests-with-python-3.12.patch
 
 ### IMPORTANT: The line below is used as a snippet marker. Do not touch it.
 ### SALT PATCHES LIST END
