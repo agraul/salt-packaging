@@ -1,0 +1,44 @@
+From e333ab5f9c94ded35e97258d856c7b68a7ae5e63 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pablo=20Su=C3=A1rez=20Hern=C3=A1ndez?=
+ <psuarezhernandez@suse.com>
+Date: Wed, 13 Aug 2025 15:42:05 +0100
+Subject: [PATCH] Remove unexpected callback keyword
+
+---
+ salt/minion.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/salt/minion.py b/salt/minion.py
+index 2f86623188..0489097112 100644
+--- a/salt/minion.py
++++ b/salt/minion.py
+@@ -1676,7 +1676,7 @@ class Minion(MinionBase):
+                 timeout_handler = handle_timeout
+ 
+             # pylint: disable=unexpected-keyword-arg
+-            self._send_req_async(load, timeout, callback=lambda f: None)
++            self._send_req_async(load, timeout)
+             # pylint: enable=unexpected-keyword-arg
+         return True
+ 
+@@ -2253,7 +2253,7 @@ class Minion(MinionBase):
+         else:
+             # pylint: disable=unexpected-keyword-arg
+             ret_val = self._send_req_async(
+-                load, timeout=timeout, callback=lambda f: None
++                load, timeout=timeout
+             )
+             # pylint: enable=unexpected-keyword-arg
+ 
+@@ -2343,7 +2343,7 @@ class Minion(MinionBase):
+         else:
+             # pylint: disable=unexpected-keyword-arg
+             ret_val = self._send_req_async(
+-                load, timeout=timeout, callback=lambda f: None
++                load, timeout=timeout
+             )
+             # pylint: enable=unexpected-keyword-arg
+ 
+-- 
+2.50.1
+
