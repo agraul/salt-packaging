@@ -1,0 +1,199 @@
+From f6e63ae61133bcbcde1135ac6597ce67eadd6995 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pablo=20Su=C3=A1rez=20Hern=C3=A1ndez?=
+ <psuarezhernandez@suse.com>
+Date: Wed, 13 Aug 2025 15:50:57 +0100
+Subject: [PATCH] Add support for extra_args on pip removal
+
+---
+ salt/modules/pip.py                           | 51 +++++++++++++------
+ salt/states/pip_state.py                      | 18 +++++++
+ .../functional/states/test_pip_state.py       | 18 +++++--
+ 3 files changed, 67 insertions(+), 20 deletions(-)
+
+diff --git a/salt/modules/pip.py b/salt/modules/pip.py
+index 68a2a442a1..d2aae27336 100644
+--- a/salt/modules/pip.py
++++ b/salt/modules/pip.py
+@@ -429,6 +429,25 @@ def _format_env_vars(env_vars):
+     return ret
+ 
+ 
++def _handle_extra_args(extra_args):
++    # These are arguments from the latest version of pip that
++    # have not yet been implemented in salt
++    for arg in extra_args:
++        # It is a keyword argument
++        if isinstance(arg, dict):
++            # There will only ever be one item in this dictionary
++            key, val = arg.popitem()
++            # Don't allow any recursion into keyword arg definitions
++            # Don't allow multiple definitions of a keyword
++            if isinstance(val, (dict, list)):
++                raise TypeError("Too many levels in: {}".format(key))
++            # This is a a normal one-to-one keyword argument
++            return [key, val]
++        # It is a positional argument, append it to the list
++        else:
++            return arg
++
++
+ def install(
+     pkgs=None,  # pylint: disable=R0912,R0913,R0914
+     requirements=None,
+@@ -997,22 +1016,11 @@ def install(
+         cmd.extend(["--trusted-host", trusted_host])
+ 
+     if extra_args:
+-        # These are arguments from the latest version of pip that
+-        # have not yet been implemented in salt
+-        for arg in extra_args:
+-            # It is a keyword argument
+-            if isinstance(arg, dict):
+-                # There will only ever be one item in this dictionary
+-                key, val = arg.popitem()
+-                # Don't allow any recursion into keyword arg definitions
+-                # Don't allow multiple definitions of a keyword
+-                if isinstance(val, (dict, list)):
+-                    raise TypeError("Too many levels in: {}".format(key))
+-                # This is a a normal one-to-one keyword argument
+-                cmd.extend([key, val])
+-            # It is a positional argument, append it to the list
+-            else:
+-                cmd.append(arg)
++        _args = _handle_extra_args(extra_args)
++        if isinstance(_args, list):
++            cmd.extend(_args)
++        else:
++            cmd.append(_args)
+ 
+     cmd_kwargs = dict(saltenv=saltenv, use_vt=use_vt, runas=user)
+ 
+@@ -1052,6 +1060,7 @@ def uninstall(
+     cwd=None,
+     saltenv="base",
+     use_vt=False,
++    extra_args=None,
+ ):
+     """
+     Uninstall packages individually or from a pip requirements file
+@@ -1094,6 +1103,9 @@ def uninstall(
+     use_vt
+         Use VT terminal emulation (see output while installing)
+ 
++    extra_args
++        pip keyword and positional arguments not yet implemented in salt
++
+     CLI Example:
+ 
+     .. code-block:: bash
+@@ -1150,6 +1162,13 @@ def uninstall(
+             )
+         cmd.extend(["--timeout", timeout])
+ 
++    if extra_args:
++        _args = _handle_extra_args(extra_args)
++        if isinstance(_args, list):
++            cmd.extend(_args)
++        else:
++            cmd.append(_args)
++
+     if pkgs:
+         if isinstance(pkgs, str):
+             pkgs = [p.strip() for p in pkgs.split(",")]
+diff --git a/salt/states/pip_state.py b/salt/states/pip_state.py
+index 542a7f6c75..0241a4419b 100644
+--- a/salt/states/pip_state.py
++++ b/salt/states/pip_state.py
+@@ -1120,6 +1120,7 @@ def removed(
+     user=None,
+     cwd=None,
+     use_vt=False,
++    extra_args=None,
+ ):
+     """
+     Make sure that a package is not installed.
+@@ -1132,6 +1133,22 @@ def removed(
+         the pip executable or virtualenenv to use
+     use_vt
+         Use VT terminal emulation (see output while installing)
++    extra_args
++        pip keyword and positional arguments not yet implemented in salt
++
++        .. code-block:: yaml
++
++            pandas:
++              pip.removed:
++                - name: pandas
++                - extra_args:
++                  - --latest-pip-kwarg: param
++                  - --latest-pip-arg
++
++        .. warning::
++
++            If unsupported options are passed here that are not supported in a
++            minion's version of pip, a `No such option error` will be thrown.
+     """
+     ret = {"name": name, "result": None, "comment": "", "changes": {}}
+ 
+@@ -1162,6 +1179,7 @@ def removed(
+         user=user,
+         cwd=cwd,
+         use_vt=use_vt,
++        extra_args=extra_args,
+     ):
+         ret["result"] = True
+         ret["changes"][name] = "Removed"
+diff --git a/tests/pytests/functional/states/test_pip_state.py b/tests/pytests/functional/states/test_pip_state.py
+index 28c1f9fd1f..173cbb2886 100644
+--- a/tests/pytests/functional/states/test_pip_state.py
++++ b/tests/pytests/functional/states/test_pip_state.py
+@@ -95,9 +95,16 @@ def test_pip_installed_removed(modules, states):
+     name = "pudb"
+     if name in modules.pip.list():
+         pytest.skip("{} is already installed, uninstall to run this test".format(name))
+-    ret = states.pip.installed(name=name)
++
++    # --break-system-package was introduced in pip 23.0.1
++    if salt.utils.versions.version_cmp(modules.pip.version(), "23.0.1") >= 0:
++        extra_args = ["--break-system-packages"]
++    else:
++        extra_args = []
++
++    ret = states.pip.installed(name=name, extra_args=extra_args)
+     assert ret.result is True
+-    ret = states.pip.removed(name=name)
++    ret = states.pip.removed(name=name, extra_args=extra_args)
+     assert ret.result is True
+ 
+ 
+@@ -256,7 +263,7 @@ pip.installed:
+     assert ret["retcode"] == 0
+ 
+     # Let's remove the pip binary
+-    pip_bin = venv_dir / "bin" / "pip"
++    pip_bin = venv_dir / "bin" / "pip3"
+     site_dir = modules.virtualenv.get_distribution_path(str(venv_dir), "pip")
+     if salt.utils.platform.is_windows():
+         pip_bin = venv_dir / "Scripts" / "pip.exe"
+@@ -426,6 +433,9 @@ def test_issue_6912_wrong_owner_requirements_file(
+ @pytest.mark.destructive_test
+ @pytest.mark.slow_test
+ @pytest.mark.skip_if_binaries_missing("virtualenv", reason="Needs virtualenv binary")
++@pytest.mark.skipif(
++    sys.version_info >= (3, 12), reason="incompatible version: distutils removed on Python 3.12",
++)
+ def test_issue_6833_pip_upgrade_pip(tmp_path, create_virtualenv, modules, states):
+     # Create the testing virtualenv
+     if sys.platform == "win32":
+@@ -465,7 +475,7 @@ def test_issue_6833_pip_upgrade_pip(tmp_path, create_virtualenv, modules, states
+     assert ret["retcode"] == 0
+     assert "Successfully installed pip" in ret["stdout"]
+ 
+-    # Let's make sure we have pip 9.0.1 installed
++    # Let's make sure we have pip 19.3.1 installed
+     assert modules.pip.list("pip", bin_env=venv_dir) == {"pip": "19.3.1"}
+ 
+     # Now the actual pip upgrade pip test
+-- 
+2.50.1
+
