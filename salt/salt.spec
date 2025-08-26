@@ -609,6 +609,7 @@ Patch196:       use-deprecated-stackcontext-from-salt.ext.tornado.st.patch
 Patch197:       remove-use-of-spwd-removed-module-in-py3.13.patch
 Patch198:       pathlib.path.__enter__-usage-is-deprecated-and-not-r.patch
 Patch199:       fix-error-if-future-is-already-done.patch
+Patch200:       fix-issues-around-closing-ioloop.patch
 
 ### IMPORTANT: The line below is used as a snippet marker. Do not touch it.
 ### SALT PATCHES LIST END

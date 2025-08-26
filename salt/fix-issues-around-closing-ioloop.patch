@@ -1,0 +1,51 @@
+From 2f237cf11ff0e7c53888378274f4d59bcbe0d0de Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pablo=20Su=C3=A1rez=20Hern=C3=A1ndez?=
+ <psuarezhernandez@suse.com>
+Date: Tue, 12 Aug 2025 13:27:32 +0100
+Subject: [PATCH] Fix issues around closing IOLoop
+
+---
+ salt/utils/asynchronous.py | 8 ++++++--
+ salt/utils/event.py        | 6 +++++-
+ 2 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/salt/utils/asynchronous.py b/salt/utils/asynchronous.py
+index 21bacea0e5..9fe0899dbe 100644
+--- a/salt/utils/asynchronous.py
++++ b/salt/utils/asynchronous.py
+@@ -114,9 +114,13 @@ class SyncWrapper:
+         io_loop.stop()
+         try:
+             io_loop.close(all_fds=True)
+-        except KeyError:
++        except (KeyError, RuntimeError):
+             pass
+-        self.asyncio_loop.close()
++        try:
++            self.asyncio_loop.close()
++        except (KeyError, RuntimeError):
++            pass
++
+ 
+     def __getattr__(self, key):
+         if key in self._async_methods:
+diff --git a/salt/utils/event.py b/salt/utils/event.py
+index 0ea989c50d..964dc5caa8 100644
+--- a/salt/utils/event.py
++++ b/salt/utils/event.py
+@@ -1290,7 +1290,11 @@ class EventPublisher(salt.utils.process.SignalHandlingProcess):
+             self.puller.close()
+             self.puller = None
+         if self.io_loop is not None:
+-            self.io_loop.close()
++            try:
++                self.io_loop.stop()
++                self.io_loop.close()
++            except RuntimeError:
++                pass
+             self.io_loop = None
+ 
+     def _handle_signals(self, signum, sigframe):
+-- 
+2.50.1
+
