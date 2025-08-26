@@ -1,19 +1,8 @@
-From fafe353334f71289c97f8cbc68a1e5f631b3b58f Mon Sep 17 00:00:00 2001
+From 41e7033ada5eee1e4a23183f17dc23e444894cc1 Mon Sep 17 00:00:00 2001
 From: Marek Czernek <marek.czernek@suse.com>
-Date: Fri, 11 Jul 2025 16:44:48 +0200
-Subject: [PATCH] Switch to external tornado
+Date: Thu, 17 Jul 2025 09:36:49 +0200
+Subject: [PATCH] Use external tornado with newest Python
 
-Cherry-picking from saltstack/salt:
-- 4baea1a97be0389fabe5307d084579134a1f9b7a
-- 5edd2259d8e1b0a708d63529958b12c255672920
-- 574e6cd2c2cbcd083fa57766587bdabd9f6908a3
-
-Synchronize files:
-- tests/pytests/unit/utils/test_asynchronous.py
-- salt/utils/asynchronous.py
-
-Keep TornadoImporter in salt/__init__.py
-for backwards compatibility with py36
 ---
  salt/__init__.py                              |   2 +-
  salt/channel/client.py                        |  53 +--
@@ -96,10 +85,10 @@ for backwards compatibility with py36
  delete mode 100644 tests/pytests/unit/test_ext_importers.py
 
 diff --git a/salt/__init__.py b/salt/__init__.py
-index b5fe3677c22..85a3fc27ada 100644
+index 1a31002a8a..0cfbc8d190 100644
 --- a/salt/__init__.py
 +++ b/salt/__init__.py
-@@ -12,7 +12,7 @@ if sys.version_info < (3,):
+@@ -13,7 +13,7 @@ if sys.version_info < (3,):
      )
      sys.stderr.flush()
  
@@ -109,7 +98,7 @@ index b5fe3677c22..85a3fc27ada 100644
  
  class TornadoImporter:
 diff --git a/salt/channel/client.py b/salt/channel/client.py
-index 25f4af7689d..56878333ed8 100644
+index 25f4af7689..56878333ed 100644
 --- a/salt/channel/client.py
 +++ b/salt/channel/client.py
 @@ -10,10 +10,11 @@ import os
@@ -310,7 +299,7 @@ index 25f4af7689d..56878333ed8 100644
      def __enter__(self):
          return self
 diff --git a/salt/channel/server.py b/salt/channel/server.py
-index 1d7cc9c577f..a9151440c2b 100644
+index 1d7cc9c577..a9151440c2 100644
 --- a/salt/channel/server.py
 +++ b/salt/channel/server.py
 @@ -12,8 +12,9 @@ import pathlib
@@ -468,7 +457,7 @@ index 1d7cc9c577f..a9151440c2b 100644
      def wrap_payload(self, load):
          payload = {"enc": "aes"}
 diff --git a/salt/client/__init__.py b/salt/client/__init__.py
-index b2617e4554d..be5939e58f6 100644
+index b2617e4554..be5939e58f 100644
 --- a/salt/client/__init__.py
 +++ b/salt/client/__init__.py
 @@ -25,11 +25,12 @@ import sys
@@ -534,7 +523,7 @@ index b2617e4554d..be5939e58f6 100644
          )
  
 diff --git a/salt/client/mixins.py b/salt/client/mixins.py
-index 7cdae88ae8a..509ce95809a 100644
+index 7cdae88ae8..509ce95809 100644
 --- a/salt/client/mixins.py
 +++ b/salt/client/mixins.py
 @@ -14,7 +14,6 @@ from collections.abc import Mapping, MutableMapping
@@ -597,7 +586,7 @@ index 7cdae88ae8a..509ce95809a 100644
                  if isinstance(ex, salt.exceptions.NotImplemented):
                      data["return"] = str(ex)
 diff --git a/salt/crypt.py b/salt/crypt.py
-index 981f633d51f..e993efb9fce 100644
+index 981f633d51..e993efb9fc 100644
 --- a/salt/crypt.py
 +++ b/salt/crypt.py
 @@ -22,9 +22,10 @@ import traceback
@@ -697,7 +686,7 @@ index 981f633d51f..e993efb9fce 100644
      def handle_signin_response(self, sign_in_payload, payload):
          auth = {}
 diff --git a/salt/engines/ircbot.py b/salt/engines/ircbot.py
-index 1dab78dbbc5..982c860c262 100644
+index 1dab78dbbc..982c860c26 100644
 --- a/salt/engines/ircbot.py
 +++ b/salt/engines/ircbot.py
 @@ -61,8 +61,9 @@ import socket
@@ -749,7 +738,7 @@ index 1dab78dbbc5..982c860c262 100644
              )
          self.read_messages()
 diff --git a/salt/engines/webhook.py b/salt/engines/webhook.py
-index 1424d4a27dc..fdd2ca2dfbb 100644
+index 1424d4a27d..fdd2ca2dfb 100644
 --- a/salt/engines/webhook.py
 +++ b/salt/engines/webhook.py
 @@ -2,9 +2,10 @@
@@ -793,7 +782,7 @@ index 1424d4a27dc..fdd2ca2dfbb 100644
      )
      http_server.listen(port, address=address)
 diff --git a/salt/fileclient.py b/salt/fileclient.py
-index 4ed341221cd..60758b5b560 100644
+index 4ed341221c..60758b5b56 100644
 --- a/salt/fileclient.py
 +++ b/salt/fileclient.py
 @@ -12,6 +12,8 @@ import string
@@ -818,7 +807,7 @@ index 4ed341221cd..60758b5b560 100644
  
  log = logging.getLogger(__name__)
 diff --git a/salt/master.py b/salt/master.py
-index ba7c751d4b4..09ce7d36a7e 100644
+index ba7c751d4b..09ce7d36a7 100644
 --- a/salt/master.py
 +++ b/salt/master.py
 @@ -17,6 +17,8 @@ import sys
@@ -875,7 +864,7 @@ index ba7c751d4b4..09ce7d36a7e 100644
  
          return {
 diff --git a/salt/metaproxy/deltaproxy.py b/salt/metaproxy/deltaproxy.py
-index c3003b368f7..4c07236d34f 100644
+index c3003b368f..4c07236d34 100644
 --- a/salt/metaproxy/deltaproxy.py
 +++ b/salt/metaproxy/deltaproxy.py
 @@ -10,6 +10,9 @@ import threading
@@ -916,7 +905,7 @@ index c3003b368f7..4c07236d34f 100644
  
      # We stash an instance references to allow for the socket
 diff --git a/salt/metaproxy/proxy.py b/salt/metaproxy/proxy.py
-index a399c15ef16..161ccfc2305 100644
+index a399c15ef1..161ccfc230 100644
 --- a/salt/metaproxy/proxy.py
 +++ b/salt/metaproxy/proxy.py
 @@ -16,8 +16,8 @@ import salt.client
@@ -949,7 +938,7 @@ index a399c15ef16..161ccfc2305 100644
  
      # We stash an instance references to allow for the socket
 diff --git a/salt/minion.py b/salt/minion.py
-index d9201e20109..2f866231888 100644
+index d9201e2010..2f86623188 100644
 --- a/salt/minion.py
 +++ b/salt/minion.py
 @@ -26,9 +26,9 @@ import salt.crypt
@@ -1363,7 +1352,7 @@ index d9201e20109..2f866231888 100644
          mp_call = _metaproxy_call(self.opts, "handle_decoded_payload")
          return mp_call(self, data)
 diff --git a/salt/netapi/rest_tornado/__init__.py b/salt/netapi/rest_tornado/__init__.py
-index 67336d0adaa..b4f5fb4422b 100644
+index 67336d0ada..b4f5fb4422 100644
 --- a/salt/netapi/rest_tornado/__init__.py
 +++ b/salt/netapi/rest_tornado/__init__.py
 @@ -13,9 +13,9 @@ log = logging.getLogger(__virtualname__)
@@ -1408,7 +1397,7 @@ index 67336d0adaa..b4f5fb4422b 100644
      except KeyboardInterrupt:
          raise SystemExit(0)
 diff --git a/salt/netapi/rest_tornado/saltnado.py b/salt/netapi/rest_tornado/saltnado.py
-index 44c4089ccbb..5d43ff60c5c 100644
+index 44c4089ccb..5d43ff60c5 100644
 --- a/salt/netapi/rest_tornado/saltnado.py
 +++ b/salt/netapi/rest_tornado/saltnado.py
 @@ -194,11 +194,11 @@ from copy import copy
@@ -1715,7 +1704,7 @@ index 44c4089ccbb..5d43ff60c5c 100644
          r"""
          An HTTP stream of the Salt master event bus
 diff --git a/salt/netapi/rest_tornado/saltnado_websockets.py b/salt/netapi/rest_tornado/saltnado_websockets.py
-index 08f4b7ad157..98d64000909 100644
+index 08f4b7ad15..98d6400090 100644
 --- a/salt/netapi/rest_tornado/saltnado_websockets.py
 +++ b/salt/netapi/rest_tornado/saltnado_websockets.py
 @@ -291,8 +291,8 @@ Setup
@@ -1757,7 +1746,7 @@ index 08f4b7ad157..98d64000909 100644
          """Listens for a "websocket client ready" message.
          Once that message is received an asynchronous job
 diff --git a/salt/pillar/__init__.py b/salt/pillar/__init__.py
-index 8f6bd90d0a4..0b532aca5ed 100644
+index 8f6bd90d0a..0b532aca5e 100644
 --- a/salt/pillar/__init__.py
 +++ b/salt/pillar/__init__.py
 @@ -12,7 +12,7 @@ import time
@@ -1798,7 +1787,7 @@ index 8f6bd90d0a4..0b532aca5ed 100644
 -        raise salt.ext.tornado.gen.Return(ret)
 +        raise tornado.gen.Return(ret)
 diff --git a/salt/transport/base.py b/salt/transport/base.py
-index 014a9731d59..86a2c882deb 100644
+index 014a9731d5..86a2c882de 100644
 --- a/salt/transport/base.py
 +++ b/salt/transport/base.py
 @@ -1,4 +1,4 @@
@@ -1826,7 +1815,7 @@ index 014a9731d59..86a2c882deb 100644
          """
          Create a network connection to the the PublishServer or broker.
 diff --git a/salt/transport/ipc.py b/salt/transport/ipc.py
-index 6631781c5cf..aac2083247c 100644
+index 6631781c5c..aac2083247 100644
 --- a/salt/transport/ipc.py
 +++ b/salt/transport/ipc.py
 @@ -7,18 +7,18 @@ import logging
@@ -2120,7 +2109,7 @@ index 6631781c5cf..aac2083247c 100644
  
      def close(self):
 diff --git a/salt/transport/tcp.py b/salt/transport/tcp.py
-index 6a9e1138940..1225a4a7791 100644
+index 6a9e113894..1225a4a779 100644
 --- a/salt/transport/tcp.py
 +++ b/salt/transport/tcp.py
 @@ -16,13 +16,13 @@ import socket
@@ -2500,7 +2489,7 @@ index 6a9e1138940..1225a4a7791 100644
      def close(self):
          self.message_client.close()
 diff --git a/salt/transport/zeromq.py b/salt/transport/zeromq.py
-index 89f705190e0..730af297790 100644
+index 89f705190e..730af29779 100644
 --- a/salt/transport/zeromq.py
 +++ b/salt/transport/zeromq.py
 @@ -14,10 +14,10 @@ from random import randint
@@ -2656,7 +2645,7 @@ index 89f705190e0..730af297790 100644
      def close(self):
          self.message_client.close()
 diff --git a/salt/utils/asynchronous.py b/salt/utils/asynchronous.py
-index 55a50cbcbff..21bacea0e59 100644
+index 55a50cbcbf..21bacea0e5 100644
 --- a/salt/utils/asynchronous.py
 +++ b/salt/utils/asynchronous.py
 @@ -2,11 +2,14 @@
@@ -2816,7 +2805,7 @@ index 55a50cbcbff..21bacea0e59 100644
 +        self.close()
 \ No newline at end of file
 diff --git a/salt/utils/event.py b/salt/utils/event.py
-index c973926db93..0ea989c50db 100644
+index c973926db9..0ea989c50d 100644
 --- a/salt/utils/event.py
 +++ b/salt/utils/event.py
 @@ -63,8 +63,8 @@ from collections.abc import MutableMapping
@@ -2903,7 +2892,7 @@ index c973926db93..0ea989c50db 100644
              if self.opts["ipc_mode"] == "tcp":
                  epub_uri = int(self.opts["tcp_master_pub_port"])
 diff --git a/salt/utils/gitfs.py b/salt/utils/gitfs.py
-index 2a8ecf1d0cb..6169bae4154 100644
+index 2a8ecf1d0c..6169bae415 100644
 --- a/salt/utils/gitfs.py
 +++ b/salt/utils/gitfs.py
 @@ -23,7 +23,7 @@ import time
@@ -2925,7 +2914,7 @@ index 2a8ecf1d0cb..6169bae4154 100644
              # We only evaluate the second condition in this if statement if
              # we're initializing remotes, so we won't get here unless io_loop
 diff --git a/salt/utils/http.py b/salt/utils/http.py
-index 26f2e85c2ee..dbf8f4698ed 100644
+index 26f2e85c2e..dbf8f4698e 100644
 --- a/salt/utils/http.py
 +++ b/salt/utils/http.py
 @@ -23,8 +23,8 @@ import xml.etree.ElementTree as ET
@@ -2997,7 +2986,7 @@ index 26f2e85c2ee..dbf8f4698ed 100644
              ret["error"] = str(exc)
              return ret
 diff --git a/salt/utils/process.py b/salt/utils/process.py
-index 6c393706acd..9d7b53aa112 100644
+index 6c393706ac..9d7b53aa11 100644
 --- a/salt/utils/process.py
 +++ b/salt/utils/process.py
 @@ -26,7 +26,7 @@ import salt.utils.files
@@ -3010,7 +2999,7 @@ index 6c393706acd..9d7b53aa112 100644
  log = logging.getLogger(__name__)
  
 diff --git a/salt/utils/thin.py b/salt/utils/thin.py
-index 80766a286a9..f87b4c8f8d7 100644
+index 80766a286a..f87b4c8f8d 100644
 --- a/salt/utils/thin.py
 +++ b/salt/utils/thin.py
 @@ -24,7 +24,7 @@ import yaml
@@ -3023,7 +3012,7 @@ index 80766a286a9..f87b4c8f8d7 100644
  import salt.utils.hashutils
  import salt.utils.json
 diff --git a/tests/integration/minion/test_minion_cache.py b/tests/integration/minion/test_minion_cache.py
-index 039c1e51c94..33125f8bccb 100644
+index 039c1e51c9..33125f8bcc 100644
 --- a/tests/integration/minion/test_minion_cache.py
 +++ b/tests/integration/minion/test_minion_cache.py
 @@ -35,7 +35,7 @@ class BasePillarTest(ModuleCase):
@@ -3036,7 +3025,7 @@ index 039c1e51c94..33125f8bccb 100644
              self.assertTrue("pillar" in os.listdir(tempdir))
              pillar_cache = os.path.join(tempdir, "pillar")
 diff --git a/tests/integration/modules/test_gem.py b/tests/integration/modules/test_gem.py
-index f484e8c3c1d..7c988800018 100644
+index f484e8c3c1..7c98880001 100644
 --- a/tests/integration/modules/test_gem.py
 +++ b/tests/integration/modules/test_gem.py
 @@ -4,7 +4,7 @@ Integration tests for Ruby Gem module
@@ -3049,7 +3038,7 @@ index f484e8c3c1d..7c988800018 100644
  
  
 diff --git a/tests/integration/netapi/rest_tornado/test_app.py b/tests/integration/netapi/rest_tornado/test_app.py
-index 65bb4ad6463..be5cfb3e547 100644
+index 65bb4ad646..be5cfb3e54 100644
 --- a/tests/integration/netapi/rest_tornado/test_app.py
 +++ b/tests/integration/netapi/rest_tornado/test_app.py
 @@ -5,11 +5,11 @@ import time
@@ -3086,7 +3075,7 @@ index 65bb4ad6463..be5cfb3e547 100644
  
      def fetch(self, path, **kwargs):
 diff --git a/tests/pytests/conftest.py b/tests/pytests/conftest.py
-index 324bd116303..dc7c4aff81b 100644
+index 324bd11630..dc7c4aff81 100644
 --- a/tests/pytests/conftest.py
 +++ b/tests/pytests/conftest.py
 @@ -19,7 +19,7 @@ import pytest
@@ -3117,7 +3106,7 @@ index 324bd116303..dc7c4aff81b 100644
      try:
          yield loop
 diff --git a/tests/pytests/functional/channel/test_req_channel.py b/tests/pytests/functional/channel/test_req_channel.py
-index 4f5f52d66f4..5f46c4d3971 100644
+index 4f5f52d66f..5f46c4d397 100644
 --- a/tests/pytests/functional/channel/test_req_channel.py
 +++ b/tests/pytests/functional/channel/test_req_channel.py
 @@ -13,7 +13,7 @@ import salt.channel.server
@@ -3154,7 +3143,7 @@ index 4f5f52d66f4..5f46c4d3971 100644
  
  @pytest.fixture
 diff --git a/tests/pytests/functional/channel/test_server.py b/tests/pytests/functional/channel/test_server.py
-index 30bf2d35cba..37a75c16dd0 100644
+index 30bf2d35cb..37a75c16dd 100644
 --- a/tests/pytests/functional/channel/test_server.py
 +++ b/tests/pytests/functional/channel/test_server.py
 @@ -14,8 +14,8 @@ from saltfactories.utils import random_string
@@ -3187,7 +3176,7 @@ index 30bf2d35cba..37a75c16dd0 100644
  
  
 diff --git a/tests/pytests/functional/netapi/rest_cherrypy/conftest.py b/tests/pytests/functional/netapi/rest_cherrypy/conftest.py
-index e25ce0cf13f..90b43f938ed 100644
+index e25ce0cf13..90b43f938e 100644
 --- a/tests/pytests/functional/netapi/rest_cherrypy/conftest.py
 +++ b/tests/pytests/functional/netapi/rest_cherrypy/conftest.py
 @@ -1,6 +1,6 @@
@@ -3208,7 +3197,7 @@ index e25ce0cf13f..90b43f938ed 100644
          )
  
 diff --git a/tests/pytests/functional/netapi/rest_cherrypy/test_auth.py b/tests/pytests/functional/netapi/rest_cherrypy/test_auth.py
-index eb6e155487b..08bff51dc68 100644
+index eb6e155487..08bff51dc6 100644
 --- a/tests/pytests/functional/netapi/rest_cherrypy/test_auth.py
 +++ b/tests/pytests/functional/netapi/rest_cherrypy/test_auth.py
 @@ -3,7 +3,7 @@ import urllib.parse
@@ -3221,7 +3210,7 @@ index eb6e155487b..08bff51dc68 100644
  
  async def test_get_root_noauth(http_client):
 diff --git a/tests/pytests/functional/netapi/rest_cherrypy/test_auth_pam.py b/tests/pytests/functional/netapi/rest_cherrypy/test_auth_pam.py
-index f275b1510e3..d292424a61c 100644
+index f275b1510e..d292424a61 100644
 --- a/tests/pytests/functional/netapi/rest_cherrypy/test_auth_pam.py
 +++ b/tests/pytests/functional/netapi/rest_cherrypy/test_auth_pam.py
 @@ -2,7 +2,7 @@ import urllib.parse
@@ -3234,7 +3223,7 @@ index f275b1510e3..d292424a61c 100644
  pytestmark = [
      pytest.mark.destructive_test,
 diff --git a/tests/pytests/functional/netapi/rest_cherrypy/test_out_formats.py b/tests/pytests/functional/netapi/rest_cherrypy/test_out_formats.py
-index 444bced9be1..2579f339276 100644
+index 444bced9be..2579f33927 100644
 --- a/tests/pytests/functional/netapi/rest_cherrypy/test_out_formats.py
 +++ b/tests/pytests/functional/netapi/rest_cherrypy/test_out_formats.py
 @@ -1,6 +1,6 @@
@@ -3246,7 +3235,7 @@ index 444bced9be1..2579f339276 100644
  
  @pytest.fixture
 diff --git a/tests/pytests/functional/netapi/rest_tornado/test_auth_handler.py b/tests/pytests/functional/netapi/rest_tornado/test_auth_handler.py
-index 91e04ee0578..3ca335d4630 100644
+index 91e04ee057..3ca335d463 100644
 --- a/tests/pytests/functional/netapi/rest_tornado/test_auth_handler.py
 +++ b/tests/pytests/functional/netapi/rest_tornado/test_auth_handler.py
 @@ -4,7 +4,7 @@ import pytest
@@ -3259,7 +3248,7 @@ index 91e04ee0578..3ca335d4630 100644
  
  pytestmark = [
 diff --git a/tests/pytests/functional/netapi/rest_tornado/test_auth_handler_pam.py b/tests/pytests/functional/netapi/rest_tornado/test_auth_handler_pam.py
-index ffd9871339b..006e4fb0ab4 100644
+index ffd9871339..006e4fb0ab 100644
 --- a/tests/pytests/functional/netapi/rest_tornado/test_auth_handler_pam.py
 +++ b/tests/pytests/functional/netapi/rest_tornado/test_auth_handler_pam.py
 @@ -4,7 +4,7 @@ import pytest
@@ -3272,7 +3261,7 @@ index ffd9871339b..006e4fb0ab4 100644
  
  pytestmark = [
 diff --git a/tests/pytests/functional/netapi/rest_tornado/test_base_api_handler.py b/tests/pytests/functional/netapi/rest_tornado/test_base_api_handler.py
-index 78ece2b3d59..bf62530aeb0 100644
+index 78ece2b3d5..bf62530aeb 100644
 --- a/tests/pytests/functional/netapi/rest_tornado/test_base_api_handler.py
 +++ b/tests/pytests/functional/netapi/rest_tornado/test_base_api_handler.py
 @@ -4,7 +4,7 @@ import pytest
@@ -3285,7 +3274,7 @@ index 78ece2b3d59..bf62530aeb0 100644
  
  
 diff --git a/tests/pytests/functional/netapi/rest_tornado/test_utils.py b/tests/pytests/functional/netapi/rest_tornado/test_utils.py
-index 69edce7da50..a32de85de1d 100644
+index 69edce7da5..a32de85de1 100644
 --- a/tests/pytests/functional/netapi/rest_tornado/test_utils.py
 +++ b/tests/pytests/functional/netapi/rest_tornado/test_utils.py
 @@ -1,4 +1,4 @@
@@ -3304,7 +3293,7 @@ index 69edce7da50..a32de85de1d 100644
  
      # create an any future, make sure it isn't immediately done
 diff --git a/tests/pytests/functional/netapi/rest_tornado/test_websockets_handler.py b/tests/pytests/functional/netapi/rest_tornado/test_websockets_handler.py
-index d039e75d29b..c6673ccd310 100644
+index d039e75d29..c6673ccd31 100644
 --- a/tests/pytests/functional/netapi/rest_tornado/test_websockets_handler.py
 +++ b/tests/pytests/functional/netapi/rest_tornado/test_websockets_handler.py
 @@ -6,8 +6,8 @@ import pytest
@@ -3319,7 +3308,7 @@ index d039e75d29b..c6673ccd310 100644
  pytestmark = [
      pytest.mark.destructive_test,
 diff --git a/tests/pytests/functional/transport/ipc/test_client.py b/tests/pytests/functional/transport/ipc/test_client.py
-index df6f2372011..fb064843e41 100644
+index df6f237201..fb064843e4 100644
 --- a/tests/pytests/functional/transport/ipc/test_client.py
 +++ b/tests/pytests/functional/transport/ipc/test_client.py
 @@ -5,7 +5,7 @@ import pytest
@@ -3332,7 +3321,7 @@ index df6f2372011..fb064843e41 100644
  pytestmark = [
      # Windows does not support POSIX IPC
 diff --git a/tests/pytests/functional/transport/ipc/test_subscriber.py b/tests/pytests/functional/transport/ipc/test_subscriber.py
-index 07676305cb4..5bb9ea486ab 100644
+index 07676305cb..5bb9ea486a 100644
 --- a/tests/pytests/functional/transport/ipc/test_subscriber.py
 +++ b/tests/pytests/functional/transport/ipc/test_subscriber.py
 @@ -4,10 +4,10 @@ import attr
@@ -3361,7 +3350,7 @@ index 07676305cb4..5bb9ea486ab 100644
      await channel.publish(msg)
      ret = await channel.read()
 diff --git a/tests/pytests/functional/transport/server/test_req_channel.py b/tests/pytests/functional/transport/server/test_req_channel.py
-index 0ea71318f59..6bdab71ee03 100644
+index 0ea71318f5..6bdab71ee0 100644
 --- a/tests/pytests/functional/transport/server/test_req_channel.py
 +++ b/tests/pytests/functional/transport/server/test_req_channel.py
 @@ -9,7 +9,7 @@ import salt.channel.client
@@ -3404,7 +3393,7 @@ index 0ea71318f59..6bdab71ee03 100644
  
  @pytest.fixture
 diff --git a/tests/pytests/functional/transport/tcp/test_message_client.py b/tests/pytests/functional/transport/tcp/test_message_client.py
-index 292f389000d..b989f951488 100644
+index 292f389000..b989f95148 100644
 --- a/tests/pytests/functional/transport/tcp/test_message_client.py
 +++ b/tests/pytests/functional/transport/tcp/test_message_client.py
 @@ -2,9 +2,9 @@ import logging
@@ -3467,7 +3456,7 @@ index 292f389000d..b989f951488 100644
 +        await tornado.gen.sleep(1)
      assert received == [msg, msg]
 diff --git a/tests/pytests/functional/utils/test_async_event_publisher.py b/tests/pytests/functional/utils/test_async_event_publisher.py
-index aa773b452ab..12f4e68889a 100644
+index aa773b452a..12f4e68889 100644
 --- a/tests/pytests/functional/utils/test_async_event_publisher.py
 +++ b/tests/pytests/functional/utils/test_async_event_publisher.py
 @@ -2,7 +2,7 @@ import pytest
@@ -3480,7 +3469,7 @@ index aa773b452ab..12f4e68889a 100644
  import salt.utils.stringutils
  
 diff --git a/tests/pytests/integration/netapi/rest_cherrypy/conftest.py b/tests/pytests/integration/netapi/rest_cherrypy/conftest.py
-index bc0eb017bce..213b0390ae2 100644
+index bc0eb017bc..213b0390ae 100644
 --- a/tests/pytests/integration/netapi/rest_cherrypy/conftest.py
 +++ b/tests/pytests/integration/netapi/rest_cherrypy/conftest.py
 @@ -1,6 +1,6 @@
@@ -3501,7 +3490,7 @@ index bc0eb017bce..213b0390ae2 100644
      )
  
 diff --git a/tests/pytests/integration/netapi/rest_cherrypy/test_auth.py b/tests/pytests/integration/netapi/rest_cherrypy/test_auth.py
-index ab58d70b5ed..068e7075ede 100644
+index ab58d70b5e..068e7075ed 100644
 --- a/tests/pytests/integration/netapi/rest_cherrypy/test_auth.py
 +++ b/tests/pytests/integration/netapi/rest_cherrypy/test_auth.py
 @@ -3,7 +3,7 @@ import urllib.parse
@@ -3514,7 +3503,7 @@ index ab58d70b5ed..068e7075ede 100644
  
  async def test_get_root_noauth(http_client):
 diff --git a/tests/pytests/integration/netapi/rest_cherrypy/test_run.py b/tests/pytests/integration/netapi/rest_cherrypy/test_run.py
-index e012d13c593..f9a3f7aa61d 100644
+index e012d13c59..f9a3f7aa61 100644
 --- a/tests/pytests/integration/netapi/rest_cherrypy/test_run.py
 +++ b/tests/pytests/integration/netapi/rest_cherrypy/test_run.py
 @@ -2,7 +2,7 @@ import urllib.parse
@@ -3527,7 +3516,7 @@ index e012d13c593..f9a3f7aa61d 100644
  
  @pytest.mark.netapi_client_data(["local"])
 diff --git a/tests/pytests/integration/netapi/rest_tornado/test_events_api_handler.py b/tests/pytests/integration/netapi/rest_tornado/test_events_api_handler.py
-index 188e4603492..a307767be94 100644
+index 188e460349..a307767be9 100644
 --- a/tests/pytests/integration/netapi/rest_tornado/test_events_api_handler.py
 +++ b/tests/pytests/integration/netapi/rest_tornado/test_events_api_handler.py
 @@ -2,7 +2,7 @@ from functools import partial
@@ -3548,7 +3537,7 @@ index 188e4603492..a307767be94 100644
  
      assert len(events_fired) >= 5
 diff --git a/tests/pytests/integration/netapi/rest_tornado/test_minions_api_handler.py b/tests/pytests/integration/netapi/rest_tornado/test_minions_api_handler.py
-index 05146b45a45..fffee6cd8b4 100644
+index 05146b45a4..fffee6cd8b 100644
 --- a/tests/pytests/integration/netapi/rest_tornado/test_minions_api_handler.py
 +++ b/tests/pytests/integration/netapi/rest_tornado/test_minions_api_handler.py
 @@ -1,7 +1,7 @@
@@ -3561,7 +3550,7 @@ index 05146b45a45..fffee6cd8b4 100644
  
  
 diff --git a/tests/pytests/integration/netapi/rest_tornado/test_root_handler.py b/tests/pytests/integration/netapi/rest_tornado/test_root_handler.py
-index 9dd4cbd6aab..7d93c1d6a17 100644
+index 9dd4cbd6aa..7d93c1d6a1 100644
 --- a/tests/pytests/integration/netapi/rest_tornado/test_root_handler.py
 +++ b/tests/pytests/integration/netapi/rest_tornado/test_root_handler.py
 @@ -1,7 +1,7 @@
@@ -3574,7 +3563,7 @@ index 9dd4cbd6aab..7d93c1d6a17 100644
  
  
 diff --git a/tests/pytests/unit/channel/test_server.py b/tests/pytests/unit/channel/test_server.py
-index 3f6262f89b1..806b82bbaaf 100644
+index 3f6262f89b..806b82bbaa 100644
 --- a/tests/pytests/unit/channel/test_server.py
 +++ b/tests/pytests/unit/channel/test_server.py
 @@ -3,7 +3,7 @@ import time
@@ -3596,7 +3585,7 @@ index 3f6262f89b1..806b82bbaaf 100644
  
      with patch.object(req_server_channel, "_auth", _auth_mock):
 diff --git a/tests/pytests/unit/cli/test_batch_async.py b/tests/pytests/unit/cli/test_batch_async.py
-index be8de692e64..cd73b8d883b 100644
+index be8de692e6..cd73b8d883 100644
 --- a/tests/pytests/unit/cli/test_batch_async.py
 +++ b/tests/pytests/unit/cli/test_batch_async.py
 @@ -1,6 +1,6 @@
@@ -3742,7 +3731,7 @@ index be8de692e64..cd73b8d883b 100644
      batch.scheduled = True
      with patch.object(batch, "run_next", return_value=future) as run_next_mock:
 diff --git a/tests/pytests/unit/fileserver/gitfs/test_gitfs.py b/tests/pytests/unit/fileserver/gitfs/test_gitfs.py
-index 7896fd93bb7..18d3893a5d0 100644
+index 7896fd93bb..18d3893a5d 100644
 --- a/tests/pytests/unit/fileserver/gitfs/test_gitfs.py
 +++ b/tests/pytests/unit/fileserver/gitfs/test_gitfs.py
 @@ -25,7 +25,7 @@ import pathlib
@@ -3764,7 +3753,7 @@ index 7896fd93bb7..18d3893a5d0 100644
      except KeyError:
          pass
 diff --git a/tests/pytests/unit/fileserver/gitfs/test_gitfs_config.py b/tests/pytests/unit/fileserver/gitfs/test_gitfs_config.py
-index afd0cfdc9e2..ca502f716f3 100644
+index afd0cfdc9e..ca502f716f 100644
 --- a/tests/pytests/unit/fileserver/gitfs/test_gitfs_config.py
 +++ b/tests/pytests/unit/fileserver/gitfs/test_gitfs_config.py
 @@ -2,7 +2,7 @@ import textwrap
@@ -3787,7 +3776,7 @@ index afd0cfdc9e2..ca502f716f3 100644
          pass
 diff --git a/tests/pytests/unit/test_ext_importers.py b/tests/pytests/unit/test_ext_importers.py
 deleted file mode 100644
-index e81ef234a92..00000000000
+index e81ef234a9..0000000000
 --- a/tests/pytests/unit/test_ext_importers.py
 +++ /dev/null
 @@ -1,51 +0,0 @@
@@ -3843,7 +3832,7 @@ index e81ef234a92..00000000000
 -    except TypeError:
 -        assert False, "TornadoImporter raised type error when one argument passed"
 diff --git a/tests/pytests/unit/test_minion.py b/tests/pytests/unit/test_minion.py
-index 017c28d1634..7c5c14c0182 100644
+index 017c28d163..7c5c14c018 100644
 --- a/tests/pytests/unit/test_minion.py
 +++ b/tests/pytests/unit/test_minion.py
 @@ -4,9 +4,9 @@ import os
@@ -4050,7 +4039,7 @@ index 017c28d1634..7c5c14c0182 100644
          )
          try:
 diff --git a/tests/pytests/unit/transport/test_ipc.py b/tests/pytests/unit/transport/test_ipc.py
-index 5a687836161..36a6e8f70b4 100644
+index 5a68783616..36a6e8f70b 100644
 --- a/tests/pytests/unit/transport/test_ipc.py
 +++ b/tests/pytests/unit/transport/test_ipc.py
 @@ -1,7 +1,7 @@
@@ -4071,7 +4060,7 @@ index 5a687836161..36a6e8f70b4 100644
          # Don't `await subscriber.connect()`, that's the purpose of the SyncWrapper
          subscriber.connect()
 diff --git a/tests/pytests/unit/transport/test_tcp.py b/tests/pytests/unit/transport/test_tcp.py
-index bcfb71f5590..537395d04c5 100644
+index bcfb71f559..537395d04c 100644
 --- a/tests/pytests/unit/transport/test_tcp.py
 +++ b/tests/pytests/unit/transport/test_tcp.py
 @@ -8,7 +8,7 @@ from pytestshellutils.utils import ports
@@ -4178,7 +4167,7 @@ index bcfb71f5590..537395d04c5 100644
              io_loop.run_sync(functools.partial(server.publish_payload, package, None))
  
 diff --git a/tests/pytests/unit/transport/test_zeromq.py b/tests/pytests/unit/transport/test_zeromq.py
-index fd0e4b19772..95216cc9c48 100644
+index fd0e4b1977..95216cc9c4 100644
 --- a/tests/pytests/unit/transport/test_zeromq.py
 +++ b/tests/pytests/unit/transport/test_zeromq.py
 @@ -19,8 +19,8 @@ import salt.channel.server
@@ -4356,7 +4345,7 @@ index fd0e4b19772..95216cc9c48 100644
      client.transport.send = mocksend
  
 diff --git a/tests/pytests/unit/utils/event/test_event.py b/tests/pytests/unit/utils/event/test_event.py
-index fa9e420a933..3b261f95c8d 100644
+index fa9e420a93..3b261f95c8 100644
 --- a/tests/pytests/unit/utils/event/test_event.py
 +++ b/tests/pytests/unit/utils/event/test_event.py
 @@ -8,8 +8,8 @@ import pytest
@@ -4422,7 +4411,7 @@ index fa9e420a933..3b261f95c8d 100644
              me.pusher.stream,
              "write",
 diff --git a/tests/pytests/unit/utils/event/test_event_return.py b/tests/pytests/unit/utils/event/test_event_return.py
-index e9548c701f4..67cee0d1350 100644
+index e9548c701f..67cee0d135 100644
 --- a/tests/pytests/unit/utils/event/test_event_return.py
 +++ b/tests/pytests/unit/utils/event/test_event_return.py
 @@ -1,7 +1,7 @@
@@ -4435,7 +4424,7 @@ index e9548c701f4..67cee0d1350 100644
  import salt.utils.stringutils
  
 diff --git a/tests/pytests/unit/utils/test_asynchronous.py b/tests/pytests/unit/utils/test_asynchronous.py
-index 2b5613e2bfe..f4434304cb0 100644
+index 2b5613e2bf..f4434304cb 100644
 --- a/tests/pytests/unit/utils/test_asynchronous.py
 +++ b/tests/pytests/unit/utils/test_asynchronous.py
 @@ -1,3 +1,5 @@
@@ -4462,7 +4451,7 @@ index 2b5613e2bfe..f4434304cb0 100644
 +    assert ret is False
 \ No newline at end of file
 diff --git a/tests/support/helpers.py b/tests/support/helpers.py
-index 3556e08853b..5dc4041ff4d 100644
+index 3556e08853..5dc4041ff4 100644
 --- a/tests/support/helpers.py
 +++ b/tests/support/helpers.py
 @@ -37,8 +37,8 @@ from pytestshellutils.exceptions import ProcessFailed
@@ -4532,7 +4521,7 @@ index 3556e08853b..5dc4041ff4d 100644
      Mirror a POST body back to the client
      """
 diff --git a/tests/support/netapi.py b/tests/support/netapi.py
-index 91fbad5f1a4..5095a5998d4 100644
+index 91fbad5f1a..5095a5998d 100644
 --- a/tests/support/netapi.py
 +++ b/tests/support/netapi.py
 @@ -4,12 +4,12 @@ import socket
@@ -4573,7 +4562,7 @@ index 91fbad5f1a4..5095a5998d4 100644
      application.auth = load_auth
      application.opts = client_config
 diff --git a/tests/support/pytest/transport.py b/tests/support/pytest/transport.py
-index eaa8adc8bd4..592cbd05d46 100644
+index eaa8adc8bd..592cbd05d4 100644
 --- a/tests/support/pytest/transport.py
 +++ b/tests/support/pytest/transport.py
 @@ -10,9 +10,9 @@ from pytestshellutils.utils.processes import terminate_process
@@ -4635,7 +4624,7 @@ index eaa8adc8bd4..592cbd05d46 100644
          loop.start()
  
 diff --git a/tests/unit/modules/test_random_org.py b/tests/unit/modules/test_random_org.py
-index 30e98ca0802..2c3340c30e8 100644
+index 30e98ca080..2c3340c30e 100644
 --- a/tests/unit/modules/test_random_org.py
 +++ b/tests/unit/modules/test_random_org.py
 @@ -5,7 +5,7 @@
@@ -4648,7 +4637,7 @@ index 30e98ca0802..2c3340c30e8 100644
  from tests.support.unit import TestCase
  
 diff --git a/tests/unit/netapi/rest_tornado/test_saltnado.py b/tests/unit/netapi/rest_tornado/test_saltnado.py
-index c4758e700ab..43367df13f9 100644
+index c4758e700a..43367df13f 100644
 --- a/tests/unit/netapi/rest_tornado/test_saltnado.py
 +++ b/tests/unit/netapi/rest_tornado/test_saltnado.py
 @@ -1,10 +1,10 @@
@@ -5494,7 +5483,7 @@ index c4758e700ab..43367df13f9 100644
              assert all(minions[m_id] for m_id in minions)
              # But _disbatch_local is not returned yet because min_wait_time has not passed
 diff --git a/tests/unit/test_proxy_minion.py b/tests/unit/test_proxy_minion.py
-index bc3e867619f..92fc68ad4b1 100644
+index bc3e867619..92fc68ad4b 100644
 --- a/tests/unit/test_proxy_minion.py
 +++ b/tests/unit/test_proxy_minion.py
 @@ -13,8 +13,8 @@ import pytest
@@ -5536,7 +5525,7 @@ index bc3e867619f..92fc68ad4b1 100644
          mock_metaproxy_call = MagicMock()
          with patch(
 diff --git a/tests/unit/transport/mixins.py b/tests/unit/transport/mixins.py
-index 65b1c7a9498..c757f37861f 100644
+index 65b1c7a949..c757f37861 100644
 --- a/tests/unit/transport/mixins.py
 +++ b/tests/unit/transport/mixins.py
 @@ -1,4 +1,4 @@
@@ -5562,10 +5551,10 @@ index 65b1c7a9498..c757f37861f 100644
      loop.add_callback(stopper)
      try:
 diff --git a/tests/unit/transport/test_ipc.py b/tests/unit/transport/test_ipc.py
-index 72c32a2382c..dff6f77f2d9 100644
+index 0c0ce56ed5..c3e17b613c 100644
 --- a/tests/unit/transport/test_ipc.py
 +++ b/tests/unit/transport/test_ipc.py
-@@ -10,12 +10,12 @@ import pytest
+@@ -11,12 +11,12 @@ import pytest
  
  import salt.config
  import salt.exceptions
@@ -5582,7 +5571,7 @@ index 72c32a2382c..dff6f77f2d9 100644
  from tests.support.runtests import RUNTIME_VARS
  
  pytestmark = [
-@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
+@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
  
  
  @pytest.mark.skip_on_windows(reason="Windows does not support Posix IPC")
@@ -5591,7 +5580,7 @@ index 72c32a2382c..dff6f77f2d9 100644
      """
      Test all of the clear msg stuff
      """
-@@ -124,7 +124,7 @@ class IPCMessagePubSubCase(salt.ext.tornado.testing.AsyncTestCase):
+@@ -128,7 +128,7 @@ class IPCMessagePubSubCase(salt.ext.tornado.testing.AsyncTestCase):
          self.assertEqual(ret1, "TEST")
          self.assertEqual(ret2, "TEST")
  
@@ -5601,7 +5590,7 @@ index 72c32a2382c..dff6f77f2d9 100644
          client1 = self.sub_channel
          call_cnt = []
 diff --git a/tests/unit/transport/test_tcp.py b/tests/unit/transport/test_tcp.py
-index dbe88081859..934a0400933 100644
+index dbe8808185..934a040093 100644
 --- a/tests/unit/transport/test_tcp.py
 +++ b/tests/unit/transport/test_tcp.py
 @@ -12,12 +12,12 @@ import salt.channel.client
@@ -5631,7 +5620,7 @@ index dbe88081859..934a0400933 100644
          cls.req_server_channel.post_fork(cls._handle_payload, io_loop=cls.io_loop)
          cls.server_thread = threading.Thread(
 diff --git a/tests/unit/utils/test_context.py b/tests/unit/utils/test_context.py
-index abea69fbf62..79029b1e4d7 100644
+index abea69fbf6..79029b1e4d 100644
 --- a/tests/unit/utils/test_context.py
 +++ b/tests/unit/utils/test_context.py
 @@ -3,172 +3,11 @@ tests.unit.context_test
@@ -5816,7 +5805,7 @@ index abea69fbf62..79029b1e4d7 100644
 +        self.assertEqual(salt.utils.json.dumps(w), '{"bar": "baz"}')
 \ No newline at end of file
 diff --git a/tests/unit/utils/test_gitfs.py b/tests/unit/utils/test_gitfs.py
-index 6e99a219ca3..48c0d0472d4 100644
+index 6e99a219ca..48c0d0472d 100644
 --- a/tests/unit/utils/test_gitfs.py
 +++ b/tests/unit/utils/test_gitfs.py
 @@ -7,7 +7,7 @@ import tempfile
@@ -5838,7 +5827,7 @@ index 6e99a219ca3..48c0d0472d4 100644
      except KeyError:
          pass
 diff --git a/tests/unit/utils/test_http.py b/tests/unit/utils/test_http.py
-index d9a84f9582a..c1bd5c16589 100644
+index d9a84f9582..c1bd5c1658 100644
 --- a/tests/unit/utils/test_http.py
 +++ b/tests/unit/utils/test_http.py
 @@ -15,7 +15,7 @@ from tests.support.runtests import RUNTIME_VARS
@@ -5851,5 +5840,5 @@ index d9a84f9582a..c1bd5c16589 100644
      HAS_CURL = True
  except ImportError:
 -- 
-2.50.0
+2.51.0
 

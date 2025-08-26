@@ -1,4 +1,4 @@
-From 785fb7d55ef2ae8ea89f8eb64062e96568a29dba Mon Sep 17 00:00:00 2001
+From c4677c6eb4532212406cdffd935e66a97c68490f Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Pablo=20Su=C3=A1rez=20Hern=C3=A1ndez?=
  <psuarezhernandez@suse.com>
 Date: Tue, 12 Aug 2025 15:13:49 +0100
@@ -13,7 +13,6 @@ Subject: [PATCH] fixup: bunch of fixes
  tests/integration/cli/test_custom_module.py   |  5 ++-
  tests/integration/modules/test_pip.py         |  3 ++
  tests/integration/modules/test_saltcheck.py   | 28 ++++++-------
- tests/pytests/conftest.py                     | 20 ---------
  .../netapi/rest_cherrypy/conftest.py          |  4 +-
  .../unit/modules/file/test_file_module.py     |  4 ++
  tests/pytests/unit/runners/test_manage.py     |  3 +-
@@ -24,7 +23,7 @@ Subject: [PATCH] fixup: bunch of fixes
  tests/unit/states/test_zcbuildout.py          | 15 +++++++
  tests/unit/transport/test_ipc.py              | 12 ++----
  tests/unit/utils/test_http.py                 |  1 +
- 19 files changed, 132 insertions(+), 62 deletions(-)
+ 18 files changed, 132 insertions(+), 42 deletions(-)
 
 diff --git a/salt/metaproxy/deltaproxy.py b/salt/metaproxy/deltaproxy.py
 index dee46fa262..8778891265 100644
@@ -212,37 +211,6 @@ index 394d80bb8a..eb73902c82 100644
 +        self.assertEqual(
 +            {**ret[0]["validate-saltcheck"]["echo_test_prod_env"], **{"status": "Pass"}}, ret[0]["validate-saltcheck"]["echo_test_prod_env"]
          )
-diff --git a/tests/pytests/conftest.py b/tests/pytests/conftest.py
-index dc7c4aff81..72c4e383b7 100644
---- a/tests/pytests/conftest.py
-+++ b/tests/pytests/conftest.py
-@@ -55,26 +55,6 @@ def salt_auto_account_factory():
-     return TestAccount(username="saltdev_auto", password="saltdev")
- 
- 
--@pytest.fixture(scope="module")
--def salt_ssh_roster_file(sshd_server, salt_master):
--    roster_contents = """
--    localhost:
--      host: 127.0.0.1
--      port: {}
--      user: {}
--      mine_functions:
--        test.arg: ['itworked']
--    """.format(
--        sshd_server.listen_port, RUNTIME_VARS.RUNNING_TESTS_USER
--    )
--    if salt.utils.platform.is_darwin():
--        roster_contents += "  set_path: $PATH:/usr/local/bin/\n"
--    with pytest.helpers.temp_file(
--        "roster", roster_contents, salt_master.config_dir
--    ) as roster_file:
--        yield roster_file
--
--
- @pytest.fixture(scope="session")
- def salt_minion_id():
-     return random_string("minion-")
 diff --git a/tests/pytests/functional/netapi/rest_cherrypy/conftest.py b/tests/pytests/functional/netapi/rest_cherrypy/conftest.py
 index 90b43f938e..ccc1f449ba 100644
 --- a/tests/pytests/functional/netapi/rest_cherrypy/conftest.py
@@ -574,5 +542,5 @@ index c1bd5c1658..a8f751624e 100644
  
          # Find unused port
 -- 
-2.50.1
+2.51.0
 

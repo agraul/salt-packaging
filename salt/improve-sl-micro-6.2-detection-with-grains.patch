@@ -74,5 +74,5 @@ index c15a3b4360..135c40bc2b 100644
  def test_debian_9_os_grains():
      """
 -- 
-2.50.1
+2.51.0
 

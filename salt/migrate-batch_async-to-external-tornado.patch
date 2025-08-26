@@ -1,14 +1,14 @@
-From 8be046aee09b7ac36b497921065b20b7a70516cf Mon Sep 17 00:00:00 2001
+From 6cfb0eeaf2822c7473d5f556a893ab30e3fde8c9 Mon Sep 17 00:00:00 2001
 From: Marek Czernek <marek.czernek@suse.com>
-Date: Wed, 16 Jul 2025 14:32:56 +0200
-Subject: [PATCH] Migrate batch_async to upstream tornado
+Date: Thu, 17 Jul 2025 09:37:35 +0200
+Subject: [PATCH] Migrate batch_async to external tornado
 
 ---
  salt/cli/batch_async.py | 38 +++++++++++++++++++-------------------
  1 file changed, 19 insertions(+), 19 deletions(-)
 
 diff --git a/salt/cli/batch_async.py b/salt/cli/batch_async.py
-index 92215d0e04a..9e0ecddda54 100644
+index 92215d0e04..9e0ecddda5 100644
 --- a/salt/cli/batch_async.py
 +++ b/salt/cli/batch_async.py
 @@ -6,10 +6,10 @@ import logging
@@ -173,5 +173,5 @@ index 92215d0e04a..9e0ecddda54 100644
              # The batch can be done already at this point, which means no self.event
              if self.event and self.active.intersection(next_batch):
 -- 
-2.50.0
+2.51.0
 
