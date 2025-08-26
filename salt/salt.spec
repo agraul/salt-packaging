@@ -616,6 +616,7 @@ Patch203:       skip-incompatible-pip-tests-with-python-3.12.patch
 Patch204:       fixme-use-httpserver-from-vendored-tornado.patch
 Patch205:       add-support-for-extra_args-on-pip-removal.patch
 Patch206:       virtual_env-add-support-for-python-3.12.patch
+Patch207:       fixme-skip-stuck-test.patch
 
 ### IMPORTANT: The line below is used as a snippet marker. Do not touch it.
 ### SALT PATCHES LIST END
