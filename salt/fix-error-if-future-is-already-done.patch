@@ -1,0 +1,44 @@
+From d7558d9cd14434df209f61b8897ce3e9564d1075 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pablo=20Su=C3=A1rez=20Hern=C3=A1ndez?=
+ <psuarezhernandez@suse.com>
+Date: Tue, 12 Aug 2025 13:27:07 +0100
+Subject: [PATCH] Fix error if future is already done
+
+---
+ salt/transport/ipc.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/salt/transport/ipc.py b/salt/transport/ipc.py
+index aac2083247..d016c8c8b1 100644
+--- a/salt/transport/ipc.py
++++ b/salt/transport/ipc.py
+@@ -339,7 +339,7 @@ class IPCClient:
+             try:
+                 log.trace("IPCClient: Connecting to socket: %s", self.socket_path)
+                 yield self.stream.connect(sock_addr)
+-                if self._connecting_future is not None:
++                if self._connecting_future is not None and not self._connecting_future.done():
+                     self._connecting_future.set_result(True)
+                 break
+             except Exception as e:  # pylint: disable=broad-except
+@@ -350,7 +350,7 @@ class IPCClient:
+                     if self.stream is not None:
+                         self.stream.close()
+                         self.stream = None
+-                    if self._connecting_future is not None:
++                    if self._connecting_future is not None and not self._connecting_future.done():
+                         self._connecting_future.set_exception(e)
+                     break
+ 
+@@ -366,7 +366,7 @@ class IPCClient:
+             return
+ 
+         self._closing = True
+-        if self._connecting_future is not None:
++        if self._connecting_future is not None and not self._connecting_future.done():
+             try:
+                 self._connecting_future.set_result(True)
+                 self._connecting_future.exception()  # pylint: disable=E0203
+-- 
+2.50.1
+
