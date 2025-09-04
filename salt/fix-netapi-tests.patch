@@ -1,0 +1,71 @@
+From 1b5c74dcf4b56c9785db47a4ed5ecf0630533f07 Mon Sep 17 00:00:00 2001
+From: Marek Czernek <marek.czernek@suse.com>
+Date: Wed, 3 Sep 2025 17:11:19 +0200
+Subject: [PATCH] Fix netapi tests
+
+Cherry-pick of https://github.com/saltstack/salt/commit/e8c016419b73aaefab32880fe91ad694f0c6668e
+---
+ tests/pytests/functional/netapi/rest_cherrypy/conftest.py   | 2 +-
+ .../netapi/rest_cherrypy/test_external_auth_syntax.py       | 2 +-
+ tests/pytests/unit/transport/test_tcp.py                    | 6 +++---
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/tests/pytests/functional/netapi/rest_cherrypy/conftest.py b/tests/pytests/functional/netapi/rest_cherrypy/conftest.py
+index ccc1f449ba..d96d368af4 100644
+--- a/tests/pytests/functional/netapi/rest_cherrypy/conftest.py
++++ b/tests/pytests/functional/netapi/rest_cherrypy/conftest.py
+@@ -29,7 +29,7 @@ def app(client_config, load_auth):
+ 
+ 
+ @pytest.fixture
+-def http_server(app, netapi_port):
++def http_server(app, netapi_port, io_loop):
+     with netapi.TestsTornadoHttpServer(
+         app=app, port=netapi_port
+     ) as server:
+diff --git a/tests/pytests/functional/netapi/rest_cherrypy/test_external_auth_syntax.py b/tests/pytests/functional/netapi/rest_cherrypy/test_external_auth_syntax.py
+index 0be1cacb67..6afb76e455 100644
+--- a/tests/pytests/functional/netapi/rest_cherrypy/test_external_auth_syntax.py
++++ b/tests/pytests/functional/netapi/rest_cherrypy/test_external_auth_syntax.py
+@@ -278,7 +278,7 @@ def client_config(client_config, external_auth):
+ 
+ 
+ @pytest.fixture
+-def http_server(io_loop, app, netapi_port, content_type_map):
++def http_server(app, netapi_port, content_type_map, io_loop):
+     with netapi.TestsTornadoHttpServer(
+         app=app,
+         port=netapi_port,
+diff --git a/tests/pytests/unit/transport/test_tcp.py b/tests/pytests/unit/transport/test_tcp.py
+index 4fc949b490..3d7826ccf7 100644
+--- a/tests/pytests/unit/transport/test_tcp.py
++++ b/tests/pytests/unit/transport/test_tcp.py
+@@ -243,7 +243,7 @@ def test_tcp_pub_server_channel_publish_filtering_str_list(temp_salt_master):
+ @pytest.fixture(scope="function")
+ def salt_message_client():
+     io_loop_mock = MagicMock(spec=tornado.ioloop.IOLoop)
+-    io_loop_mock.asyncio_loop = MagicMock(spec=asyncio.new_event_loop())
++    io_loop_mock.asyncio_loop = None
+     io_loop_mock.call_later.side_effect = lambda *args, **kwargs: (args, kwargs)
+ 
+     client = salt.transport.tcp.MessageClient(
+@@ -456,7 +456,7 @@ def test_presence_events_callback_passed(temp_salt_master, salt_message_client):
+ 
+ 
+ @pytest.mark.flaky(max_runs=4)
+-def test_presence_removed_on_stream_closed():
++async def test_presence_removed_on_stream_closed():
+     opts = {"presence_events": True}
+ 
+     io_loop_mock = MagicMock(spec=tornado.ioloop.IOLoop)
+@@ -483,6 +483,6 @@ def test_presence_removed_on_stream_closed():
+             "tornado.iostream.BaseIOStream.write",
+             side_effect=tornado.iostream.StreamClosedError(),
+         ):
+-            io_loop.run_sync(functools.partial(server.publish_payload, package, None))
++            await server.publish_payload(package, None)
+ 
+             server.remove_presence_callback.assert_called_with(client)
+-- 
+2.51.0
+

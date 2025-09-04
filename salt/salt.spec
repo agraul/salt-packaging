@@ -617,6 +617,8 @@ Patch1104:       fixme-use-httpserver-from-vendored-tornado.patch
 Patch1105:       add-support-for-extra_args-on-pip-removal.patch
 Patch1106:       virtual_env-add-support-for-python-3.12.patch
 Patch1107:       fixme-skip-stuck-test.patch
+Patch1108:       fix-netapi-tests.patch
+Patch1109:       fix-test_utils.patch
 
 ### IMPORTANT: The line below is used as a snippet marker. Do not touch it.
 ### SALT PATCHES LIST END
