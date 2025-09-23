@@ -619,6 +619,11 @@ Patch1106:       virtual_env-add-support-for-python-3.12.patch
 Patch1107:       fixme-skip-stuck-test.patch
 Patch1108:       fix-netapi-tests.patch
 Patch1109:       fix-test_utils.patch
+Patch1110:       fix-fileclient-inability-to-download-a-file.patch
+Patch1111:       move-httpd-to-external-tornado.patch
+Patch1112:       fix-closed-io_loop.patch
+Patch1113:       fix-salt-api-test.patch
+Patch1114:       fix-netapi-rest_tornado-tests.patch
 
 ### IMPORTANT: The line below is used as a snippet marker. Do not touch it.
 ### SALT PATCHES LIST END

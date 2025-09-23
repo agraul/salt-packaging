@@ -1,0 +1,25 @@
+From e4719f26da316611406f4947e7eccfbe1a4bb4fb Mon Sep 17 00:00:00 2001
+From: Marek Czernek <marek.czernek@suse.com>
+Date: Thu, 11 Sep 2025 16:00:04 +0200
+Subject: [PATCH] Fix closed io_loop
+
+---
+ tests/pytests/functional/netapi/rest_tornado/conftest.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tests/pytests/functional/netapi/rest_tornado/conftest.py b/tests/pytests/functional/netapi/rest_tornado/conftest.py
+index d578fd9f8a..f3b49a046e 100644
+--- a/tests/pytests/functional/netapi/rest_tornado/conftest.py
++++ b/tests/pytests/functional/netapi/rest_tornado/conftest.py
+@@ -16,7 +16,7 @@ def client_config(client_config, netapi_port):
+ 
+ 
+ @pytest.fixture
+-def app(app_urls, load_auth, client_config, minion_config):
++def app(app_urls, load_auth, client_config, minion_config, io_loop):
+     return netapi.build_tornado_app(app_urls, load_auth, client_config, minion_config)
+ 
+ 
+-- 
+2.51.0
+

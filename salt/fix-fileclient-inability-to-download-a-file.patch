@@ -1,0 +1,25 @@
+From 0786d7a8433787d1ebce65a5a62d1d6213c489f5 Mon Sep 17 00:00:00 2001
+From: Marek Czernek <marek.czernek@suse.com>
+Date: Thu, 11 Sep 2025 15:40:48 +0200
+Subject: [PATCH] Fix fileclient inability to download a file
+
+---
+ salt/fileclient.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/salt/fileclient.py b/salt/fileclient.py
+index 60758b5b56..f44c5a63cb 100644
+--- a/salt/fileclient.py
++++ b/salt/fileclient.py
+@@ -744,7 +744,7 @@ class Client:
+                 # Check the status line of the HTTP request
+                 if write_body[0] is None:
+                     try:
+-                        hdr = parse_response_start_line(hdr)
++                        hdr = parse_response_start_line(hdr.strip())
+                     except HTTPInputError:
+                         # Not the first line, do nothing
+                         return
+-- 
+2.51.0
+
